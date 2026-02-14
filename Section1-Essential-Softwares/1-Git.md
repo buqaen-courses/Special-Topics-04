@@ -1,5 +1,8 @@
 
 # Git Command Overview
+## Introduction
+
+Git is a distributed version control system that tracks changes in your code. This guide covers the essential commands you'll use daily for managing repositories, collaborating with teammates, and maintaining a clean project history.
 
 ## Getting Started
 ```bash
@@ -9,6 +12,9 @@ git init                    # Initialize repository
 ```
 
 ## Basic Commands
+
+Essential commands for daily version control workflows, including staging changes, committing work, and synchroncing with remote repositories.
+
 ```bash
 git add <file>              # Stage changes
 git add .                   # Stage all changes
