@@ -1,7 +1,7 @@
 ## Homework 2 Submission
 
-**Student:** YOUR_FULL_NAME
-**GitHub:** @YOUR_USERNAME
+**Student:** Fatemeh Gholamzadeh
+**GitHub:** @Fatemeh-Gholamzadeh
 
 ### Completed Tasks:
 
