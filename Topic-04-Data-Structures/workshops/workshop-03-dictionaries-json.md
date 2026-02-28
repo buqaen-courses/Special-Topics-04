@@ -131,7 +131,7 @@ print(loaded_data)
 Create a function that builds a dictionary from two lists (keys and values).
 
 ```python
-def build_dict(keys, values):
+def build_dict(keys: list, values: list) -> dict:
     # TODO: Create dictionary from keys and values lists
     pass
 

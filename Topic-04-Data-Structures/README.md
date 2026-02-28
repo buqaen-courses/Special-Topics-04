@@ -1,14 +1,14 @@
-# Module 3: Python Data Structures
+# Module 4: Advanced Python Data Structures & Algorithms
 
-**Sections**: 5-9 (5 tutorials × 30 minutes each = 2.5 hours)
-**Target Audience**: Semester 2 Computer Engineering Students
-**Prerequisites**: Basic Python programming knowledge (variables, loops, functions)
+**Sections**: 0-5 (6 tutorials × 45-60 minutes each = 5-6 hours)
+**Target Audience**: Mid-level Computer Engineering Students (Semester 3-4)
+**Prerequisites**: Solid Python fundamentals, basic algorithms, data types, and control structures
 
 ---
 
 ## 📋 Module Overview
 
-This module provides a foundation in Python data structures, from basic arrays and lists to dictionaries and modern Python features. You'll learn essential data structure operations that form the building blocks of Python programming.
+This module dives deep into advanced Python data structures and algorithms, equipping you with the skills to handle complex data processing tasks. You'll master efficient data manipulation techniques, algorithmic thinking, and real-world problem-solving using Python's powerful built-in data structures. Through practical examples and challenging exercises, you'll learn to optimize code performance and implement scalable solutions.
 
 ---
 
@@ -16,53 +16,63 @@ This module provides a foundation in Python data structures, from basic arrays a
 
 By the end of this module, students will be able to:
 
-1. **Create and use arrays** with basic operations
-2. **Work with lists and sets** for data collections
-3. **Use dictionaries** for key-value data storage
-4. **Handle JSON data** with basic conversion
-5. **Apply match statements** for value checking
+1. **Implement advanced array/matrix operations** including multi-dimensional manipulation and numerical algorithms
+2. **Master complex list/set operations** with algorithmic efficiency and performance optimization
+3. **Utilize dictionaries for advanced data processing** including nested structures and custom objects
+4. **Handle complex JSON data** with validation, transformation, and real-world API integration
+5. **Apply sophisticated pattern matching** with structural matching and data validation
+6. **Create optimized comprehensions** for complex data transformations and filtering
 
 ---
 
 ## 📚 Module Structure
 
-### **Tutorial 0: Python Type Hints Basics** (30 min)
-**Topics**: Basic type hints for variables and functions
+### **Tutorial 0: Advanced Type Systems & Generics** (45 min)
+**Topics**: Advanced type hints, generics, Union types, Optional types, custom types
 
 **Materials**:
-- **Tutorial**: Introduction to Python type annotations
+- **Tutorial**: Type system mastery with practical applications
+- **Workshop**: Type annotation exercises for data structures
 
-### **Tutorial 1: Arrays and Matrices** (30 min)
-**Topics**: Array creation, access, modification, basic matrix operations
-
-**Materials**:
-- **Tutorial**: Arrays and matrices fundamentals
-- **Workshop**: Basic array and matrix exercises
-- **Homework**: Simple array and matrix problems
-
-### **Tutorial 2: Lists and Sets** (30 min)
-**Topics**: List operations, set operations, basic data collections
+### **Tutorial 1: Advanced Arrays & Matrix Operations** (60 min)
+**Topics**: Multi-dimensional arrays, matrix algebra, numerical algorithms, memory optimization
 
 **Materials**:
-- **Tutorial**: Lists and sets fundamentals
-- **Workshop**: List and set practice exercises
-- **Homework**: Basic list and set problems
+- **Tutorial**: Advanced array manipulation and matrix operations
+- **Workshop**: Matrix algorithms and performance optimization
+- **Homework**: Complex array/matrix algorithmic problems
 
-### **Tutorial 3: Dictionaries and JSON** (30 min)
-**Topics**: Dictionary operations, JSON conversion, data storage
-
-**Materials**:
-- **Tutorial**: Dictionaries and JSON basics
-- **Workshop**: Dictionary and JSON exercises
-- **Homework**: Dictionary and JSON practice
-
-### **Tutorial 4: Match Statement** (20 min)
-**Topics**: Basic pattern matching, value checking with match
+### **Tutorial 2: Advanced Lists & Sets with Algorithms** (60 min)
+**Topics**: List comprehensions, set operations, algorithmic complexity, performance optimization
 
 **Materials**:
-- **Tutorial**: Match statement fundamentals
-- **Workshop**: Match statement practice
-- **Homework**: Match statement applications
+- **Tutorial**: Advanced list/set operations with algorithmic thinking
+- **Workshop**: Algorithm implementation with data structures
+- **Homework**: Real-world data processing problems
+
+### **Tutorial 3: Advanced Dictionaries & JSON Processing** (60 min)
+**Topics**: Nested dictionaries, defaultdict, OrderedDict, complex JSON handling, data serialization
+
+**Materials**:
+- **Tutorial**: Advanced dictionary operations and JSON manipulation
+- **Workshop**: Complex data processing and API integration
+- **Homework**: Real-world data transformation challenges
+
+### **Tutorial 4: Structural Pattern Matching** (45 min)
+**Topics**: Advanced match patterns, destructuring, guards, class pattern matching
+
+**Materials**:
+- **Tutorial**: Sophisticated pattern matching techniques
+- **Workshop**: Pattern matching for data validation and processing
+- **Homework**: Complex pattern matching problems
+
+### **Tutorial 5: Advanced Comprehensions & Generator Expressions** (60 min)
+**Topics**: Nested comprehensions, generator expressions, performance optimization, memory efficiency
+
+**Materials**:
+- **Tutorial**: Advanced comprehension techniques and optimization
+- **Workshop**: Performance comparison and optimization exercises
+- **Homework**: Complex data transformation challenges
 
 ---
 
@@ -76,17 +86,20 @@ Topic-03-Data-Structures/
 │   ├── tutorial-01-arrays-matrices.md  # Tutorial 1: Arrays & matrices
 │   ├── tutorial-02-lists-sets.md       # Tutorial 2: Lists & sets
 │   ├── tutorial-03-dictionaries-json.md # Tutorial 3: Dictionaries & JSON
-│   └── tutorial-04-match-statement.md  # Tutorial 4: Match statement
+│   ├── tutorial-04-match-statement.md  # Tutorial 4: Match statement
+│   └── tutorial-05-set-list-comprehensions.md # Tutorial 5: Comprehensions
 ├── workshops/
 │   ├── workshop-01-arrays-matrices.md  # Tutorial 1 workshop
 │   ├── workshop-02-lists-sets.md       # Tutorial 2 workshop
 │   ├── workshop-03-dictionaries-json.md # Tutorial 3 workshop
-│   └── workshop-04-match-statement.md  # Tutorial 4 workshop
+│   ├── workshop-04-match-statement.md  # Tutorial 4 workshop
+│   └── workshop-05-set-list-comprehensions.md # Tutorial 5 workshop
 ├── homeworks/
 │   ├── homework-01-arrays-matrices.md  # Tutorial 1 homework
 │   ├── homework-02-lists-sets.md       # Tutorial 2 homework
 │   ├── homework-03-dictionaries-json.md # Tutorial 3 homework
-│   └── homework-04-match-statement.md  # Tutorial 4 homework
+│   ├── homework-04-match-statement.md  # Tutorial 4 homework
+│   └── homework-05-set-list-comprehensions.md # Tutorial 5 homework
 └── resources/
     └── useful-links.md                 # Python data structures resources
 ```
@@ -96,87 +109,110 @@ Topic-03-Data-Structures/
 ## 🔧 Prerequisites
 
 ### Required Knowledge
-- Basic Python syntax (variables, data types, loops, functions)
-- Understanding of basic programming concepts
-- Text editor or IDE setup
+- Solid Python fundamentals (data types, control structures, functions, classes)
+- Basic understanding of algorithms and complexity (Big O notation)
+- Experience with basic data structures (arrays, lists, dictionaries)
+- Familiarity with file I/O and basic data processing
 
 ### Environment Setup
-- Python 3.8+ installed
-- UV package manager (from Module 2)
+- Python 3.9+ installed (for advanced type hints and features)
+- Performance profiling tools (cProfile, timeit)
+- Memory monitoring tools (tracemalloc, memory_profiler)
+- UV package manager with virtual environments
 
 ### Previous Modules
-- **Module 1**: Git version control basics
-- **Module 2**: Virtual environments and UV package manager
+- **Module 1-3**: Git, virtual environments, and basic programming concepts
+- **Mathematics Foundation**: Basic linear algebra and discrete mathematics
 
 ---
 
 ## 📈 Progression Path
 
-### **Week 1: Basic Data Structures**
-1. **Tutorial 0**: Learn about Python type hints
-2. **Tutorial 1**: Master arrays and matrices basics
-3. **Workshop 1**: Practice array and matrix operations
-4. **Homework 1**: Simple array and matrix problems
+### **Week 1: Foundation & Core Algorithms**
+1. **Tutorial 0**: Master advanced type systems for robust code
+2. **Tutorial 1**: Implement matrix algorithms and numerical computing
+3. **Workshop 1**: Matrix operations and performance benchmarking
+4. **Homework 1**: Algorithmic array/matrix problems with complexity analysis
 
-### **Week 2: Collections and Storage**
-1. **Tutorial 2**: Learn list and set operations
-2. **Workshop 2**: Practice with lists and sets
-3. **Homework 2**: Basic list and set problems
-4. **Tutorial 3**: Understand dictionaries and JSON
-5. **Workshop 3**: Dictionary and JSON exercises
-6. **Homework 3**: Dictionary and JSON practice
+### **Week 2: Data Processing & Optimization**
+1. **Tutorial 2**: Advanced list/set operations with algorithmic efficiency
+2. **Workshop 2**: Data processing pipelines and optimization techniques
+3. **Homework 2**: Real-world data manipulation and analysis problems
+4. **Tutorial 3**: Complex data structures and JSON API integration
+5. **Workshop 3**: Building data processing applications
+6. **Homework 3**: Full-stack data transformation challenges
 
-### **Week 3: Modern Python Features**
-1. **Tutorial 4**: Learn match statement basics
-2. **Workshop 4**: Match statement practice
-3. **Homework 4**: Match statement applications
+### **Week 3: Advanced Pattern Matching**
+1. **Tutorial 4**: Structural pattern matching for data validation
+2. **Workshop 4**: Pattern matching in data processing workflows
+3. **Homework 4**: Complex data validation and transformation problems
+
+### **Week 4: Performance & Production-Ready Code**
+1. **Tutorial 5**: High-performance comprehensions and memory optimization
+2. **Workshop 5**: Performance profiling and optimization techniques
+3. **Homework 5**: Large-scale data processing and optimization challenges
 
 ---
 
 ## 🎯 Assessment Strategy
 
 ### **Formative Assessment**
-- **Workshop Participation**: Active coding during hands-on sessions
-- **Tutorial Comprehension**: Understanding of basic concepts
-- **Code Quality**: Clear, working code
+- **Workshop Participation**: Active problem-solving and peer code review
+- **Algorithmic Thinking**: Demonstrating efficient solution approaches
+- **Performance Analysis**: Understanding time/space complexity trade-offs
+- **Code Optimization**: Applying best practices for scalable solutions
 
 ### **Summative Assessment**
-- **Homework 1**: Arrays and matrices (25% of module grade)
-- **Homework 2**: Lists and sets (25% of module grade)
-- **Homework 3**: Dictionaries and JSON (25% of module grade)
-- **Homework 4**: Match statement (25% of module grade)
+- **Homework 1**: Advanced array/matrix algorithms (25% of module grade)
+- **Homework 2**: Complex data processing with lists/sets (25% of module grade)
+- **Homework 3**: Advanced data manipulation with dictionaries/JSON (20% of module grade)
+- **Homework 4**: Structural pattern matching applications (15% of module grade)
+- **Homework 5**: High-performance comprehensions and optimization (15% of module grade)
 
 ### **Evaluation Criteria**
-- **Functionality**: Code works as specified
-- **Code Quality**: Clean, readable code
-- **Understanding**: Correct use of data structures
+- **Algorithmic Correctness**: Efficient and correct algorithmic solutions
+- **Code Quality**: Clean, well-documented, and maintainable code
+- **Performance Optimization**: Understanding and applying optimization techniques
+- **Practical Application**: Ability to solve real-world problems with data structures
+- **Complexity Analysis**: Understanding time and space complexity implications
 
 ---
 
 ## 🛠️ Tools & Technologies
 
 ### **Core Python Features**
-- Built-in data structures (lists, sets, dictionaries)
-- Basic array and matrix operations
-- JSON module for data conversion
-- Match statement for value checking
-- Type hints for code clarity
+- Advanced built-in data structures with algorithmic operations
+- NumPy for high-performance numerical computing
+- Collections module (defaultdict, Counter, deque)
+- Itertools for advanced iteration patterns
+- Advanced type hints with generics and Union types
+- Structural pattern matching with guards and destructuring
 
-### **Development Tools**
-- Python 3.8+
-- UV package manager
-- Any text editor or IDE
+### **Performance & Analysis Tools**
+- cProfile and profile for performance profiling
+- timeit for microbenchmarking
+- tracemalloc for memory usage analysis
+- sys.getsizeof for object memory measurement
+- functools.lru_cache for memoization
+
+### **Development Environment**
+- Python 3.9+ with advanced language features
+- UV package manager for dependency management
+- IDE with type checking (PyCharm, VS Code with Pylance)
+- Jupyter notebooks for algorithmic experimentation
 
 ---
 
 ## 🚀 Next Steps
 
-After completing this module, you'll be ready for:
+After mastering this module, you'll be prepared for:
 
-- **Module 4**: Object-Oriented Programming
-- **Module 5**: Advanced data processing with NumPy and pandas
-- **Web Development**: Building applications with data structures
-- **Data Science**: Working with structured data
+- **Advanced Algorithms**: Implementing sorting, searching, and graph algorithms
+- **Database Systems**: Designing efficient data storage and retrieval systems
+- **Machine Learning**: Building data preprocessing pipelines
+- **System Design**: Architecting scalable applications with optimal data structures
+- **Performance Engineering**: Profiling and optimizing large-scale applications
+- **Distributed Systems**: Working with data structures in concurrent and distributed environments
 
 ---
 
@@ -196,13 +232,14 @@ After completing this module, you'll be ready for:
 
 ## 📝 Module Notes
 
-- **Beginner-Friendly**: Designed for Semester 2 students with basic programming knowledge
-- **Progressive Learning**: Starts with simple concepts and builds gradually
-- **Practical Focus**: Emphasis on understanding and using data structures correctly
-- **Confidence Building**: Each tutorial builds coding confidence without overwhelming complexity
+- **Mid-Level Focus**: Designed for students with solid programming fundamentals seeking advanced skills
+- **Algorithmic Emphasis**: Focus on efficient algorithms and performance optimization
+- **Real-World Applications**: Practical examples from data processing, APIs, and system design
+- **Performance-Driven**: Understanding trade-offs between different approaches and implementations
+- **Production-Ready**: Building skills for scalable, maintainable code in professional environments
 
 ---
 
-**Module Version**: 2.0 - Simplified
+**Module Version**: 3.0 - Advanced
 **Last Updated**: February 2026
-**Estimated Completion Time**: 2.5 hours (including homework)
+**Estimated Completion Time**: 5-6 hours (including advanced homework) (including homework)

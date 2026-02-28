@@ -159,6 +159,60 @@ match x:
 # Output: x does not equal y
 ```
 
+### Functions with Type Hints
+
+```python
+# Function using match for grading
+def get_grade_description(score: int) -> str:
+    """Convert numeric score to letter grade using match."""
+    match score // 10:
+        case 10 | 9:
+            return "A - Excellent"
+        case 8:
+            return "B - Good"
+        case 7:
+            return "C - Fair"
+        case 6:
+            return "D - Poor"
+        case _:
+            return "F - Fail"
+
+# Function using match for menu selection
+def process_menu_choice(choice: int) -> str:
+    """Process menu choice and return action description."""
+    match choice:
+        case 1:
+            return "View profile information"
+        case 2:
+            return "Edit user settings"
+        case 3:
+            return "Display help menu"
+        case 4:
+            return "Exit application"
+        case _:
+            return "Invalid choice - please select 1-4"
+
+# Function using match for weather activities
+def suggest_activity(weather: str, temperature: int) -> str:
+    """Suggest activity based on weather and temperature."""
+    match weather:
+        case "sunny" if temperature > 20:
+            return "Go swimming or have a picnic"
+        case "sunny":
+            return "Go for a walk in the park"
+        case "rainy":
+            return "Stay indoors and read a book"
+        case "cloudy":
+            return "Visit a museum or go shopping"
+        case _:
+            return "Check weather forecast for better suggestions"
+
+# Usage examples
+print(get_grade_description(95))  # A - Excellent
+print(process_menu_choice(2))     # Edit user settings
+print(suggest_activity("sunny", 25))  # Go swimming or have a picnic
+```
+
 ---
 
 ## 🎯 Practice Exercises

@@ -87,7 +87,7 @@ Create a matrix and print how many rows and columns it has.
 Create a function that calculates the sum of all numbers in an array.
 
 ```python
-def sum_array(arr):
+def sum_array(arr: list) -> int:
     # TODO: Calculate sum of array elements
     pass
 
@@ -100,7 +100,7 @@ print(f"Sum: {sum_array(numbers)}")  # Should print 15
 Create a function that finds the largest number in an array.
 
 ```python
-def find_max(arr):
+def find_max(arr: list) -> int:
     # TODO: Find maximum value in array
     pass
 
@@ -113,7 +113,7 @@ print(f"Max: {find_max(numbers)}")  # Should print 5
 Create a function that counts how many elements are in a matrix.
 
 ```python
-def count_elements(matrix):
+def count_elements(matrix: list) -> int:
     # TODO: Count total elements in matrix
     pass
 

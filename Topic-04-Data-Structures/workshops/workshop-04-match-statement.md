@@ -132,7 +132,7 @@ match light:
 Use match for menu choices 1, 2, 3, 4 with default for invalid choices.
 
 ```python
-def handle_menu(choice):
+def handle_menu(choice: int) -> str:
     # TODO: Match menu choices
     match choice:
         case 1:

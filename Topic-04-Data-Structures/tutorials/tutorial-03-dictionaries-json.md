@@ -192,6 +192,45 @@ with open("person.json", "r") as file:
 print(loaded_data)  # {'name': 'Frank', 'age': 32}
 ```
 
+### Functions with Type Hints
+
+```python
+import json
+from typing import Dict, Optional
+
+# Function that works with dictionaries
+def get_user_info(user_id: int) -> Optional[Dict[str, str]]:
+    """Get user info by ID, returns None if not found."""
+    users = {
+        1: {"name": "Alice", "city": "New York"},
+        2: {"name": "Bob", "city": "Boston"}
+    }
+    return users.get(user_id)
+
+# Function that works with JSON
+def save_user_to_json(user_data: Dict[str, str], filename: str) -> None:
+    """Save user dictionary to JSON file."""
+    with open(filename, "w") as file:
+        json.dump(user_data, file)
+
+def load_user_from_json(filename: str) -> Optional[Dict[str, str]]:
+    """Load user dictionary from JSON file."""
+    try:
+        with open(filename, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return None
+
+# Usage
+user = get_user_info(1)
+if user:
+    print(f"User: {user}")  # User: {'name': 'Alice', 'city': 'New York'}
+
+save_user_to_json({"name": "Charlie", "city": "Chicago"}, "user.json")
+loaded_user = load_user_from_json("user.json")
+print(f"Loaded: {loaded_user}")  # Loaded: {'name': 'Charlie', 'city': 'Chicago'}
+```
+
 ---
 
 ## 🎯 Practice Exercises
