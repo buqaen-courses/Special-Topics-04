@@ -87,25 +87,25 @@ deactivate
 ### Basic Installation
 ```bash
 # Install FastAPI and server
-uv add fastapi uvicorn
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ fastapi uvicorn
 
 # Install additional dependencies
-uv add pydantic requests httpx
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ pydantic requests httpx
 ```
 
 ### Development Dependencies
 ```bash
 # Install development tools
-uv add --upgrade pip
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ --upgrade pip
 
 # Code formatting and linting
-uv add black flake8 isort
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ black flake8 isort
 
 # Testing
-uv add pytest pytest-asyncio httpx
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ pytest pytest-asyncio httpx
 
 # Documentation
-uv add mkdocs mkdocs-material
+uv add --index-url https://mirror2.chabokan.net/pypi/simple/ mkdocs mkdocs-material
 ```
 
 ---
@@ -146,8 +146,8 @@ fastapi-project/
 mkdir -p app tests
 
 # Create Python files
-touch app/__init__.py app/main.py app/models.py app/routes.py app/dependencies.py
-touch tests/__init__.py tests/test_main.py tests/test_routes.py
+New-Item app/__init__.py, app/main.py, app/models.py app/routes.py, app/dependencies.py
+New-Item tests/__init__.py, tests/test_main.py, tests/test_routes.py
 
 # Create other files
 touch requirements.txt .gitignore README.md
@@ -176,6 +176,9 @@ isort==5.12.0
 uv/
 env/
 ENV/
+.venv/
+venv/
+
 
 # Python
 __pycache__/

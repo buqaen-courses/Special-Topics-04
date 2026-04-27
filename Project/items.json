@@ -19,11 +19,5 @@
         "price": 756000.0,
         "is_offer": false,
         "tax": 75600.0
-    },
-    {
-        "name": "shoe-777",
-        "price": 756000.0,
-        "is_offer": false,
-        "tax": 75600.0
     }
 ]

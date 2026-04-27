@@ -183,8 +183,9 @@ from typing import Union
 def get_length(text: Union[str, int]) -> int:
     if isinstance(text, str):
         return len(text)
-    else:
+    else isinstance(text, int):
         return text  # If it's already a number
+    raise ValueError("Input Type Must Be [str,int ]")
 
 # Usage
 result1 = get_length("hello")  # 5
