@@ -1,0 +1,29 @@
+[
+    {
+        "name": "shoe-156",
+        "price": 658000.0,
+        "is_offer": true
+    },
+    {
+        "name": "shoe-394",
+        "price": 2658000.0,
+        "is_offer": false
+    },
+    {
+        "name": "shoe-578",
+        "price": 2256000.0,
+        "is_offer": false
+    },
+    {
+        "name": "shoe-777",
+        "price": 756000.0,
+        "is_offer": false,
+        "tax": 75600.0
+    },
+    {
+        "name": "shoe-777",
+        "price": 756000.0,
+        "is_offer": false,
+        "tax": 75600.0
+    }
+]
