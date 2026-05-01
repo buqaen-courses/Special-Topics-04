@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Item' if editing else 'Add Item' }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fa-solid {{ 'fa-pen-to-square' if editing else 'fa-circle-plus' }}"></i>
+                    {{ 'Edit Item' if editing else 'Add New Item' }}
+                </h4>
+            </div>
+
+            <div class="card-body">
+
+                <!-- NO JAVASCRIPT — using plain HTML forms -->
+                <form
+                    method="post"
+                    action="{% if editing %}/items/{{ item_id }}{% else %}/items/{% endif %}"
+                >
+
+                    {% if editing %}
+                        <input type="hidden" name="item_id" value="{{ item_id }}">
+                    {% endif %}
+
+                    <!-- Item Name -->
+                    <div class="mb-3">
+                        <label for="itemName" class="form-label">
+                            <i class="fa-solid fa-tag"></i> Item Name
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="itemName"
+                            name="name"
+                            placeholder="Enter item name"
+                            required
+                            {% if editing %}value="{{ item.name }}"{% endif %}
+                        >
+                    </div>
+
+                    <!-- Item Price -->
+                    <div class="mb-3">
+                        <label for="itemPrice" class="form-label">
+                            <i class="fa-solid fa-dollar-sign"></i> Price
+                        </label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="itemPrice"
+                            name="price"
+                            placeholder="Enter item price"
+                            required
+                            step="0.01"
+                            min="0.01"
+                            {% if editing %}value="{{ item.price }}"{% endif %}
+                        >
+                    </div>
+
+                    <!-- Is Offer -->
+                    <div class="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            class="form-check-input"
+                            id="isOffer"
+                            name="is_offer"
+                            {% if editing and item.is_offer %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="isOffer">
+                            <i class="fa-solid fa-circle-check"></i> This is an offer item
+                        </label>
+                    </div>
+
+                    <!-- Tax Display (edit only) -->
+                    {% if editing and item.tax is defined  %}
+                    <div class="mb-3">
+                        <div class="alert alert-info d-inline">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Calculated Tax: ${{ "%.2f"|format(item.tax) }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid {{ 'fa-floppy-disk' if editing else 'fa-plus' }}"></i>
+                            {{ 'Update Item' if editing else 'Create Item' }}
+                        </button>
+
+                        <a href="/landing" class="btn btn-secondary">
+                            <i class="fa-solid fa-circle-xmark"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

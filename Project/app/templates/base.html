@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Items CRUD{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS (LOCAL) -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/css/all.min.css" />
+
+    <style>
+            body {
+                background-color: #f8f9fa;
+            }
+            .navbar {
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .content-wrapper {
+                min-height: 80vh;
+                padding: 2rem 0;
+            }
+            .card {
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+      {% block extra_style %}
+          /* optional styles */
+      {% endblock %}
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="bi bi-box-seam"></i> Items CRUD
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if active == 'landing' %}active{% endif %}"
+                href="/landing"
+              >
+                <i class="bi bi-table"></i> Items
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if active == 'add' %}active{% endif %}"
+                href="/items/add"
+              >
+                <i class="bi bi-plus-circle"></i> Add Item
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+      <div class="container">{% block content %}{% endblock %}</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+      <p class="mb-0">&copy; 2026 Items CRUD Application</p>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle (LOCAL) -->
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_script %}{% endblock %}
+  </body>
+</html>

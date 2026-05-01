@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException,status
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException, status, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from typing import List, Optional
 import json
 import os
 from app.routes import items as items_router
+from app.routes.items import api_router as items_api_router
+
+from fastapi.staticfiles import StaticFiles
+
 # ---------------------------
 # Model
 # ---------------------------
@@ -11,7 +16,20 @@ from app.models import *
 
 app = FastAPI(title="Items CRUD with File Storage")
 
+# Mount /static -> app/static
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# ---------------------------
+# Template Engine Setup
+# ---------------------------
+templates = Jinja2Templates(directory="app/templates")
+
+# ---------------------------
+# Include existing items API router
+# ---------------------------
 app.include_router(items_router.router, prefix="/items", tags=["items"])
+app.include_router(items_api_router, prefix="/api/items", tags=["items-api"])
+
 
 DATA_FILE = "items.json"
 
@@ -27,11 +45,8 @@ def create_file_if_not_exists():
             json.dump([], f)
 
 
-
-
-
 # ---------------------------
-# Home Page
+# Home Page (redirects to /landing)
 # ---------------------------
 
 @app.get("/", response_class=HTMLResponse)
@@ -79,3 +94,14 @@ async def home():
     return html
 
 
+# ---------------------------
+# Landing Page (New!)
+# ---------------------------
+@app.get("/landing", response_class=HTMLResponse)
+async def landing(request: Request):
+    items = items_router.load_items()
+    return templates.TemplateResponse(
+        request=request,
+        name="landing.html",
+        context={"items": items}
+    )
