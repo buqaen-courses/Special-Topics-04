@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Customer{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <div class="card-header">
+        <i class="fas {{ 'fa-pen' if editing else 'fa-plus' }}"></i>
+        {{ 'Edit Customer' if editing else 'Add New Customer' }}
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% if editing %}/customers/{{ customer_id }}{% else %}/customers/{% endif %}">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Name</label>
+                <input type="text" name="name" required value="{{ customer.name if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> Email</label>
+                <input type="email" name="email" required value="{{ customer.email if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-phone"></i> Phone</label>
+                <input type="text" name="phone" value="{{ customer.phone if editing else '' }}">
+            </div>
+            <div class="d-flex gap-2" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ 'Update' if editing else 'Create' }}</button>
+                <a href="/customers/landing" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

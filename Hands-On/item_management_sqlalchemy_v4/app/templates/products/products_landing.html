@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<h2><i class="fas fa-box"></i> Products Management</h2>
+
+<div class="card">
+    <div class="card-header"><i class="fas fa-filter"></i> Search &amp; Filter</div>
+    <div class="card-body">
+        <form method="GET" action="/products/search">
+            <div class="d-flex gap-2" style="flex-wrap: wrap;">
+                <div style="flex:2;">
+                    <label>Search</label>
+                    <input type="text" name="q" placeholder="Name or description..." value="{{ q if q is defined else '' }}">
+                </div>
+                <div style="flex:1;">
+                    <label>Min price</label>
+                    <input type="number" name="min_price" step="1" value="{{ min_price if min_price is defined and min_price is not none else '' }}">
+                </div>
+                <div style="flex:1;">
+                    <label>Max price</label>
+                    <input type="number" name="max_price" step="1" value="{{ max_price if max_price is defined and max_price is not none else '' }}">
+                </div>
+                <div style="flex:1;">
+                    <label>Category</label>
+                    <select name="category_id">
+                        <option value="">All</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if category_id is defined and category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="align-self: flex-end;">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+                    <a href="/products/landing" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div style="margin: 1.5rem 0;">
+    <a href="/products/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add Product</a>
+</div>
+
+{% set filter_params = "" %}
+{% if q is defined and q %}
+    {% set filter_params = "q=" ~ q ~ "&" %}
+{% endif %}
+{% if min_price is defined and min_price is not none %}
+    {% set filter_params = filter_params ~ "min_price=" ~ min_price ~ "&" %}
+{% endif %}
+{% if max_price is defined and max_price is not none %}
+    {% set filter_params = filter_params ~ "max_price=" ~ max_price ~ "&" %}
+{% endif %}
+{% if category_id is defined and category_id is not none %}
+    {% set filter_params = filter_params ~ "category_id=" ~ category_id ~ "&" %}
+{% endif %}
+{% set base_url = "/products/search?" ~ filter_params if filter_params else "/products/landing?" %}
+
+<div class="sort-controls">
+    <span>Sort by:</span>
+    <a href="{{ base_url }}sort=default&page=1" class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">Default</a>
+    <a href="{{ base_url }}sort=name&page=1" class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">Name</a>
+    <a href="{{ base_url }}sort=price&page=1" class="btn btn-sm {% if current_sort == 'price' %}btn-active{% endif %}">Price</a>
+    <a href="{{ base_url }}sort=stock&page=1" class="btn btn-sm {% if current_sort == 'stock' %}btn-active{% endif %}">Stock</a>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="fas fa-table"></i> Products</div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products %}
+                {% for p in products %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.category.name if p.category else '—' }}</td>
+                    <td>${{ "%.2f"|format(p.price) }}</td>
+                    <td>
+                        {% if p.stock < 5 %}
+                        <span style="color:#d62828; font-weight:700;">{{ p.stock }}</span>
+                        {% else %}
+                        {{ p.stock }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/products/edit/{{ p.id }}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                        <a href="/products/delete/{{ p.id }}" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr><td colspan="6" class="text-center">No products found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if current_page > 1 %}
+    <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">&larr; Previous</a>
+    {% else %}
+    <span class="btn btn-sm btn-disabled">&larr; Previous</span>
+    {% endif %}
+    {% for n in range(1, total_pages + 1) %}
+        {% if n == current_page %}
+        <span class="btn btn-sm btn-active">{{ n }}</span>
+        {% else %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ n }}" class="btn btn-sm">{{ n }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if current_page < total_pages %}
+    <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">Next &rarr;</a>
+    {% else %}
+    <span class="btn btn-sm btn-disabled">Next &rarr;</span>
+    {% endif %}
+</div>
+<p style="text-align:center; color:#666; margin-top:10px;">Page {{ current_page }} of {{ total_pages }}</p>
+{% endif %}
+{% endblock %}

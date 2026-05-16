@@ -17,7 +17,7 @@ With JSON:
 4. User B deletes item #2 and saves — **but User B still has the old list of 5!**
 5. User B's save **overwrites** User A's change. Item #3 is back from the dead.
 
-This is called a **race condition**, and it's just one of many problems with file-based
+This is called a **race condition**, and it's just one of many problems with file‑based
 storage.
 
 ### Why Databases Exist
@@ -29,8 +29,8 @@ transactional system** that guarantees:
 |----------|---------------|-----------|--------|
 | **Atomicity** | Operations succeed completely or not at all | ❌ Partial writes corrupt the file | ✅ Transactions |
 | **Consistency** | Data always follows rules (e.g. no negative prices) | ❌ Your code must enforce everything | ✅ Constraints + types |
-| **Isolation** | Concurrent users don't interfere | ❌ Last-write-wins destroys data | ✅ WAL mode, row-level locking |
-| **Durability** | Committed data survives crashes | ❌ File can be half-written | ✅ Write-ahead log |
+| **Isolation** | Concurrent users don't interfere | ❌ Last‑write‑wins destroys data | ✅ WAL mode, row‑level locking |
+| **Durability** | Committed data survives crashes | ❌ File can be half‑written | ✅ Write‑ahead log |
 
 ### Why SQLite?
 
@@ -44,13 +44,13 @@ many embedded devices use it. For this workshop:
 
 ### What You Will Learn
 
-By converting your JSON-based CRUD app to SQLite, you will:
+By converting your JSON‑based CRUD app to SQLite, you will:
 
 1. ✅ Replace `load_items()` / `save_items()` with **SQL queries**
 2. ✅ Replace Python list sorting with **`ORDER BY`**
 3. ✅ Replace Python filtering with **`WHERE` clauses**
 4. ✅ Replace Python slicing with **`LIMIT` / `OFFSET`**
-5. ✅ Replace hand-rolled ID generation with **`AUTOINCREMENT`**
+5. ✅ Replace hand‑rolled ID generation with **`AUTOINCREMENT`**
 6. ✅ Replace `items[item_id]` index tricks with **`WHERE id = ?` lookups**
 7. ✅ See **exactly what a database does for you** that you were doing manually
 
@@ -58,18 +58,16 @@ By converting your JSON-based CRUD app to SQLite, you will:
 
 ## Step 0: Create the SQLite Project
 
-### 0.1 Copy the JSON-based project
+**Goal:** Set up a fresh copy of your JSON‑based project so you can safely migrate it to SQLite.  
+**Mental model:** You're not starting from scratch — you're swapping out the data layer while keeping the web layer (FastAPI routes and Jinja2 templates) exactly the same.
 
-Start by copying your entire `item_management` folder:
+### 0.1 Copy the JSON‑based project
 
 ```bash
 # From your workspace root
 cp -r item_management item_management_sqlite
 cd item_management_sqlite
 ```
-
-Your starting point is the complete project from Workshops 1 and 2 — JSON file storage,
-sorting, search, pagination, and all templates.
 
 ### 0.2 Remove the JSON data file
 
@@ -87,12 +85,16 @@ pip install fastapi uvicorn jinja2 python-multipart
 
 **No new package needed!** `sqlite3` is part of Python's standard library.
 
+**What you'll see:** Your `item_management_sqlite` folder is identical to the previous project except that `items.json` is gone. The templates and routes are still there, waiting to be upgraded.
+
+**Checkpoint:** You have a clean project ready for the database layer.
+
 ---
 
 ## Step 1: Create the Database Module (`app/db.py`)
 
-Create a new file `app/db.py`. This module will manage the SQLite connection and
-handle the database lifecycle.
+**Goal:** Write a single module that handles all database connectivity — creating the file, defining the table, seeding sample data, and providing connections to every route.  
+**Mental model:** This module is the "engine room". Routes will import `get_connection()` to talk to SQLite and `init_db()` will be called once when the server starts to ensure the table exists and has data.
 
 ### The Complete `app/db.py`
 
@@ -132,7 +134,7 @@ def init_db():
             ("Mouse", 25.50, 0, 2.55),
             ("Keyboard", 75.00, 1, 7.50),
             ("Monitor", 299.99, 0, 29.99),
-            # ... (22 items total, same as before)
+            # … 22 items total (same as the original seed)
         ]
         conn.executemany(
             "INSERT INTO items (name, price, is_offer, tax) VALUES (?, ?, ?, ?)",
@@ -175,7 +177,7 @@ new_id = max([item["id"] for item in items], default=-1) + 1
 ```
 
 With SQLite, the database does this automatically. Every inserted row gets a unique,
-ever-increasing ID. No collisions, no race conditions, no manual work.
+ever‑increasing ID. No collisions, no race conditions, no manual work.
 
 **3. `INTEGER` instead of `BOOL` for `is_offer`**
 
@@ -196,14 +198,32 @@ conn.execute(f"SELECT * FROM items WHERE name = '{user_input}'")
 conn.execute("SELECT * FROM items WHERE name = ?", (user_input,))
 ```
 
+**Try it:** Create `app/db.py` and then open a Python shell. Run:
+
+```python
+from app.db import init_db
+init_db()
+```
+
+Then check your folder — `items.db` has appeared. Open it with the `sqlite3` command to see the table:
+
+```bash
+sqlite3 items.db ".tables"
+sqlite3 items.db "SELECT COUNT(*) FROM items;"
+```
+
+You'll see the `items` table and 22 rows. This proves your database is alive.
+
+**Checkpoint:** The database module is ready. Next you'll rewire the dashboard to ask SQLite instead of reading JSON.
+
 ---
 
 ## Step 2: Rewrite the Landing Page (`app/main.py`)
 
-The root endpoint needs to compute dashboard statistics. With JSON you loaded all items
-and did math in Python. With SQLite, you ask the database directly.
+**Goal:** Replace the JSON‑based dashboard with live SQL aggregate queries.  
+**Mental model:** Instead of loading every item into Python and computing stats with `min()`, `max()`, and `len()`, you ask the database to do that work with one‑liner SQL functions. You get the numbers instantly without pulling all rows into memory.
 
-### BEFORE (JSON version — `app/main.py`)
+### BEFORE (JSON version)
 
 ```python
 @app.get("/")
@@ -225,9 +245,25 @@ async def root(request: Request):
 - Does min/max/avg in Python — the database could do it faster
 - No data integrity — JSON files can have missing fields
 
-### AFTER (SQLite version — `app/main.py`)
+### AFTER (SQLite version — full `app/main.py`)
 
 ```python
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from app.db import init_db, get_connection, dict_from_row
+from app.routes import items
+
+# Create the table and seed it on first run
+init_db()
+
+app = FastAPI(title="Shop Manager — SQLite Edition")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.include_router(items.router, prefix="/items")
+
+templates = Jinja2Templates(directory="app/templates")
+
+
 @app.get("/")
 async def root(request: Request):
     conn = get_connection()
@@ -249,7 +285,18 @@ async def root(request: Request):
     max_price = stats["max_price"] or 0
     avg_price = stats["avg_price"] or 0
     total_value = stats["total_value"] or 0
-    ...
+
+    return templates.TemplateResponse(
+        request=request, name="landing.html", context={
+            "total_items": total,
+            "offers_count": offers_count,
+            "regular_count": regular_count,
+            "min_price": round(min_price, 2),
+            "max_price": round(max_price, 2),
+            "avg_price": round(avg_price, 2),
+            "total_value": round(total_value, 2),
+        },
+    )
 ```
 
 ### What Changed
@@ -261,25 +308,16 @@ async def root(request: Request):
 | `min()`, `max()`, `sum()` in Python | `SELECT MIN/MAX/AVG/SUM(...)` | Database does aggregation internally |
 | `load_items()` called every request | `get_connection()` / `close()` | Connection pool, no file I/O |
 
-### Start-up initialisation
+**Try it:** Start the server with `uvicorn app.main:app --reload`. Open `http://localhost:8000/`. You'll see the same dashboard as before, but now the numbers come directly from SQLite. Check the terminal — there's no `load_items()` log because the database handles everything.
 
-Add at the top of `main.py` (before creating the `app`):
-
-```python
-from app.db import init_db, get_connection, dict_from_row
-
-init_db()   # Creates table + seeds data on first run
-```
-
-This runs once when the server starts. It creates the `items.db` file and fills it
-with 22 sample items if the table is empty.
+**Checkpoint:** The dashboard is now powered by SQL. Next you'll convert the core CRUD routes.
 
 ---
 
 ## Step 3: Rewrite the Items Routes (`app/routes/items.py`)
 
-This is the **core of the conversion**. Every operation changes from list manipulation
-to SQL queries.
+**Goal:** Transform every list‑based operation (create, read, update, delete, search) into SQL queries.  
+**Mental model:** The database is now your single source of truth. You never load all items unless absolutely necessary; instead, you ask precise questions with `SELECT`, `INSERT`, `UPDATE`, and `DELETE`.
 
 ### 3.1 The Old `load_items()` / `save_items()` Pattern
 
@@ -294,11 +332,9 @@ def load_items():
 # No save_items existed — each route wrote directly to file
 ```
 
-**SQLite version:** There is no `load_items()` anymore. Each route opens a connection,
-runs a query, and closes. The database manages persistence.
+**SQLite version:** There is no `load_items()` anymore. Each route opens a connection, runs a query, and closes. The database manages persistence.
 
-The old `load_items()` is kept in `items.py` only as a convenience for routes that
-truly need all items (though you'll see we replace even those with SQL).
+The old `load_items()` is kept in `items.py` only as a convenience for routes that truly need all items (though you'll see we replace even those with SQL).
 
 ### 3.2 LIST — `GET /items/landing`
 
@@ -342,9 +378,9 @@ paginated_items = [dict_from_row(r) for r in rows]
 | Sort by name | `sorted(items, key=lambda x: x["name"].lower())` | `ORDER BY name COLLATE NOCASE ASC` |
 | Sort by price | `sorted(items, key=lambda x: x["price"])` | `ORDER BY price ASC` |
 | Paginate | `items[start:end]` (slicing) | `LIMIT 5 OFFSET 0` |
-| Case-insensitive | `.lower()` on every compare | `COLLATE NOCASE` (built-in) |
+| Case‑insensitive | `.lower()` on every compare | `COLLATE NOCASE` (built‑in) |
 
-**Why `COLLATE NOCASE`?** SQLite can compare strings case-insensitively without
+**Why `COLLATE NOCASE`?** SQLite can compare strings case‑insensitively without
 you having to call `.lower()` on every item. It's faster and cleaner.
 
 ### 3.3 CREATE — `POST /items/`
@@ -404,7 +440,7 @@ item = dict_from_row(row)
 **Why this is correct:**
 - `WHERE id = ?` finds the row by its actual primary key
 - IDs are stable — deleting a row doesn't change other IDs
-- No "off-by-one" bugs after deletion
+- No "off‑by‑one" bugs after deletion
 
 ### 3.5 UPDATE — `POST /items/{item_id}`
 
@@ -498,9 +534,16 @@ rows = conn.execute(
 the query becomes `WHERE price >= 10`. If both are set:
 `WHERE price >= 10 AND price <= 100`. If neither: `WHERE 1=1` (always true).
 
+**Try it:** After updating the routes, restart the server. Visit `/items/landing?sort=price` and see the table sorted by price. Add a new item — the ID is auto‑generated. Edit and delete items by ID; you'll notice that deleting an item never causes the wrong item to be edited.
+
+**Checkpoint:** Every CRUD operation now runs directly on the database. The templates still receive the same variable names, so no template changes are needed.
+
 ---
 
 ## Step 4: Templates — What Changes?
+
+**Goal:** Confirm that the front‑end stays exactly the same.  
+**Mental model:** The database returns rows that we convert to dicts, which look identical to the JSON‑based dicts. The Jinja2 templates don't care where the data came from.
 
 ### Spoiler: Almost Nothing!
 
@@ -521,9 +564,13 @@ Jinja2 works exactly the same.
 
 **No template changes needed!** The templates from Workshops 1 and 2 work unchanged.
 
+**Checkpoint:** You've replaced the entire data layer without touching a single HTML file. That's the power of separating data from presentation.
+
 ---
 
 ## Step 5: Complete the Conversion Checklist
+
+**Goal:** Ensure every file has been migrated and the project structure is correct.
 
 ### ✅ All Changes at a Glance
 
@@ -533,7 +580,7 @@ Jinja2 works exactly the same.
 | `app/main.py` | `load_items()` → Python stats | `SELECT COUNT/MIN/MAX/AVG/SUM` → SQL stats |
 | `app/routes/items.py` | `load_items()` → list ops → `json.dump()` | `INSERT/SELECT/UPDATE/DELETE` → SQL |
 | `items.json` | Data file | ❌ **Deleted** — replaced by `items.db` |
-| `items.db` | ❌ Does not exist | **NEW** — auto-created by `init_db()` |
+| `items.db` | ❌ Does not exist | **NEW** — auto‑created by `init_db()` |
 | `app/templates/*.html` | Jinja2 templates | **Unchanged** — same variable names |
 
 ### ✅ Verify Your Project Structure
@@ -563,12 +610,16 @@ item_management_sqlite/
 │       └── items/
 │           └── items_landing.html
 ├── items.json               ← DELETED
-└── items.db                 ← AUTO-GENERATED on first run
+└── items.db                 ← AUTO‑GENERATED on first run
 ```
+
+**Checkpoint:** You've finished the migration. Time to test everything.
 
 ---
 
 ## Step 6: Run and Test
+
+**Goal:** Confirm that every feature works identically to the JSON version, but now with a real database underneath.
 
 ### 6.1 Start the server
 
@@ -613,12 +664,15 @@ SELECT name, price FROM items ORDER BY price DESC LIMIT 3;
 .exit
 ```
 
-This is the same SQL your Python code uses. You can inspect, debug, and even manually
-modify data without restarting the server.
+This is the same SQL your Python code uses. You can inspect, debug, and even manually modify data without restarting the server.
+
+**Checkpoint:** The app works exactly like before, but now it's backed by a concurrent, crash‑safe database. You've leveled up from file storage to real data management.
 
 ---
 
 ## Step 7: Commit Your Work
+
+**Goal:** Save your progress with Git.
 
 ```bash
 git init
@@ -649,15 +703,17 @@ Keep this table handy as you work:
 | **Update item** | `items[index] = new` + `json.dump()` | `UPDATE items SET ... WHERE id = ?` |
 | **Delete item** | `items.pop(index)` + `json.dump()` | `DELETE FROM items WHERE id = ?` |
 | **Sort ascending** | `sorted(items, key=...)` | `ORDER BY name ASC` |
-| **Case-insensitive sort** | `sorted(items, key=lambda x: x.lower())` | `ORDER BY name COLLATE NOCASE ASC` |
+| **Case‑insensitive sort** | `sorted(items, key=lambda x: x.lower())` | `ORDER BY name COLLATE NOCASE ASC` |
 | **Filter by range** | `[i for i in items if min <= i["price"] <= max]` | `WHERE price BETWEEN ? AND ?` |
 | **Paginate (page 2, 5 per page)** | `items[5:10]` | `LIMIT 5 OFFSET 5` |
 | **Count after filter** | `len(filtered_list)` | `SELECT COUNT(*) FROM items WHERE ...` |
 | **Min/Max/Avg** | `min()`, `max()`, `sum()/len()` | `SELECT MIN(), MAX(), AVG() FROM items` |
-| **Auto-increment ID** | `max(ids) + 1` (race condition!) | `INTEGER PRIMARY KEY AUTOINCREMENT` |
+| **Auto‑increment ID** | `max(ids) + 1` (race condition!) | `INTEGER PRIMARY KEY AUTOINCREMENT` |
 | **Booleans** | `True` / `False` | `1` / `0` (INTEGER) |
 | **Save** | `json.dump(items, f)` (writes entire file) | `COMMIT` (logs only the change) |
-| **Concurrency** | ❌ Last-write-wins | ✅ WAL mode, row-level locking |
+| **Concurrency** | ❌ Last‑write‑wins | ✅ WAL mode, row‑level locking |
+
+**Try this yourself:** Pick any JSON operation from the left column and convert it to the SQL version using the cheat sheet. You'll quickly build intuition.
 
 ---
 
@@ -732,7 +788,7 @@ After this workshop, you can:
 | **Filtering** | Python list comprehensions | SQL `WHERE` clauses |
 | **Pagination** | Python list slicing `[start:end]` | SQL `LIMIT/OFFSET` |
 | **Aggregation** | `min()`, `max()`, `sum()`, `len()` | SQL `MIN()`, `MAX()`, `AVG()`, `SUM()`, `COUNT()` |
-| **Concurrency** | ❌ Unsafe (last-write-wins) | ✅ Safe (WAL mode, transactions) |
+| **Concurrency** | ❌ Unsafe (last‑write‑wins) | ✅ Safe (WAL mode, transactions) |
 | **Data integrity** | ❌ No constraints | ✅ NOT NULL, types, PRIMARY KEY |
 | **Portability** | JSON file | Single `.db` file, zero config |
 
@@ -754,3 +810,7 @@ After mastering SQLite, you can:
 
 Every database you ever use (PostgreSQL, MySQL, MariaDB, Oracle, SQL Server) speaks
 the same SQL you just learned. The only thing that changes is the connection string.
+
+---
+
+You've done much more than swap a file format. You've adopted the database mindset: **the database is your partner, not just a storage bucket**. From here on, every query you write, every table you design, will be driven by the question "What can the database do for me?" That's the foundation of every real‑world application.

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Product{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <i class="fas {{ 'fa-pen' if editing else 'fa-plus' }}"></i>
+        {{ 'Edit Product' if editing else 'Add New Product' }}
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% if editing %}/products/{{ product_id }}{% else %}/products/{% endif %}">
+            <div class="form-group">
+                <label><i class="fas fa-tag"></i> Name</label>
+                <input type="text" name="name" required value="{{ product.name if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-align-left"></i> Description</label>
+                <input type="text" name="description" value="{{ product.description if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-dollar-sign"></i> Price</label>
+                <input type="number" name="price" step="0.01" required value="{{ product.price if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-cubes"></i> Stock</label>
+                <input type="number" name="stock" min="0" value="{{ product.stock if editing else '0' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-tags"></i> Category</label>
+                <select name="category_id">
+                    <option value="">— No category —</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if editing and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-2" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ 'Update' if editing else 'Create' }}</button>
+                <a href="/products/landing" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

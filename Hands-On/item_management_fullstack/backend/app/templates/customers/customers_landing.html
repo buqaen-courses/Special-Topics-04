@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<h2><i class="fas fa-users"></i> Customers</h2>
+<div style="margin: 1.5rem 0;">
+    <a href="/customers/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add Customer</a>
+</div>
+
+{% set base_url = "/customers/landing?" %}
+
+<div class="sort-controls">
+    <span>Sort by:</span>
+    <a href="{{ base_url }}sort=default&page=1" class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">Default</a>
+    <a href="{{ base_url }}sort=name&page=1" class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">Name</a>
+    <a href="{{ base_url }}sort=email&page=1" class="btn btn-sm {% if current_sort == 'email' %}btn-active{% endif %}">Email</a>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="fas fa-table"></i> All Customers</div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.phone or '—' }}</td>
+                    <td>{{ c.orders|length }}</td>
+                    <td>
+                        <a href="/customers/edit/{{ c.id }}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                        <a href="/customers/delete/{{ c.id }}" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center">No customers yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if current_page > 1 %}
+    <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">&larr; Previous</a>
+    {% else %}
+    <span class="btn btn-sm btn-disabled">&larr; Previous</span>
+    {% endif %}
+    {% for n in range(1, total_pages + 1) %}
+        {% if n == current_page %}
+        <span class="btn btn-sm btn-active">{{ n }}</span>
+        {% else %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ n }}" class="btn btn-sm">{{ n }}</a>
+        {% endif %}
+    {% endfor %}
+    {% if current_page < total_pages %}
+    <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">Next &rarr;</a>
+    {% else %}
+    <span class="btn btn-sm btn-disabled">Next &rarr;</span>
+    {% endif %}
+</div>
+<p style="text-align:center; color:#666; margin-top:10px;">Page {{ current_page }} of {{ total_pages }}</p>
+{% endif %}
+{% endblock %}

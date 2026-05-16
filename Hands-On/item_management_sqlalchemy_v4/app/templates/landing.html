@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2><i class="fas fa-chart-pie"></i> Shop Dashboard</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Products</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">{{ total_products }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Categories</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #e9c46a;">{{ total_categories }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Customers</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">{{ total_customers }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Orders</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #145c32;">{{ total_orders }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Revenue</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">${{ "%.2f"|format(total_revenue) }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Low Stock</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #d62828;">{{ low_stock }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="fas fa-clock"></i> Recent Orders</div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.customer.name if order.customer else 'N/A' }}</td>
+                    <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                    <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                    <td><span class="badge">{{ order.status }}</span></td>
+                    <td><a href="/orders/{{ order.id }}" class="btn btn-sm btn-primary">View</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center">No orders yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+    <a href="/products/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add Product</a>
+    <a href="/categories/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</a>
+    <a href="/customers/add" class="btn btn-primary"><i class="fas fa-plus"></i> Add Customer</a>
+    <a href="/orders/create" class="btn btn-primary"><i class="fas fa-plus"></i> New Order</a>
+</div>
+{% endblock %}

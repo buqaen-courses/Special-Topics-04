@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Delete Category{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
+    <div class="card-header" style="background: #d62828;">
+        <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+    </div>
+    <div class="card-body">
+        {% if category %}
+        <p>Are you sure you want to delete <strong>"{{ category.name }}"</strong>?</p>
+        <p>Description: {{ category.description or '—' }}</p>
+        {% if category.products|length > 0 %}
+        <p style="color:#d62828;"><i class="fas fa-exclamation-circle"></i> {{ category.products|length }} product(s) in this category will lose their category assignment.</p>
+        {% endif %}
+        <form method="post" action="/categories/delete/{{ category_id }}">
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, delete</button>
+            <a href="/categories/landing" class="btn btn-secondary">Cancel</a>
+        </form>
+        {% else %}
+        <p style="margin-bottom: 2rem; font-weight: 800; color: #d62828;">Category not found.</p>
+        <a href="/categories/landing" class="btn btn-primary">Back to list</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

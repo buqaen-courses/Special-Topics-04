@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Viewer</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f5f5f5; }
+    .active { background: #2b9348; color: white; font-weight: bold; border: none; border-radius: 4px; }
+    button { border: 1px solid #ccc; border-radius: 4px; padding: 0.3rem 0.8rem; cursor: pointer; background: #f5f5f5; }
+    button:hover { background: #e0e0e0; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .loading { padding: 2rem; text-align: center; color: #666; }
+    .empty { padding: 2rem; text-align: center; color: #999; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <h1>Product Viewer</h1>
+  <p>Welcome, {{ username }}!</p>
+  <p>You have <strong>{{ products.length }}</strong> products in the database.</p>
+
+  <div style="margin: 1rem 0;">
+    <input v-model="search" placeholder="Type to search..." style="width:100%; padding:0.5rem;" />
+    <p><em>You typed: <strong>{{ search }}</strong></em></p>
+  </div>
+
+  <div style="margin: 1rem 0; display: flex; gap: 0.5rem; align-items: center;">
+    <span style="font-weight: bold;">Sort by:</span>
+    <button @click="sortBy='name'; loadProducts()" :class="{ active: sortBy==='name' }">Name</button>
+    <button @click="sortBy='price'; loadProducts()" :class="{ active: sortBy==='price' }">Price</button>
+    <button @click="sortBy='stock'; loadProducts()" :class="{ active: sortBy==='stock' }">Stock</button>
+  </div>
+
+  <div v-if="loading" class="loading"><em>Loading products...</em></div>
+
+  <div v-else-if="products.length === 0" class="empty">No products found.</div>
+
+  <table v-else>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th></tr>
+    </thead>
+    <tbody>
+      <tr v-for="p in products" :key="p.id">
+        <td>{{ p.id }}</td>
+        <td>{{ p.name }}</td>
+        <td>${{ p.price.toFixed(2) }}</td>
+        <td>{{ p.stock }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div v-if="totalPages > 1" style="margin-top:1rem; display:flex; gap:0.3rem; justify-content:center; align-items:center;">
+    <button @click="currentPage--; loadProducts()" :disabled="currentPage <= 1">← Previous</button>
+    <span v-for="n in totalPages" :key="n" @click="currentPage=n; loadProducts()"
+          :class="{ active: n===currentPage }" style="padding:0.3rem 0.8rem; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+      {{ n }}
+    </span>
+    <button @click="currentPage++; loadProducts()" :disabled="currentPage >= totalPages">Next →</button>
+  </div>
+
+  <p style="text-align:center; color:#666; margin-top:0.5rem;">
+    Page {{ currentPage }} of {{ totalPages }} ({{ products.length }} products on this page)
+  </p>
+</div>
+
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    data() {
+      return {
+        username: 'Admin',
+        search: '',
+        products: [],
+        loading: false,
+        sortBy: 'name',
+        currentPage: 1,
+        totalPages: 1,
+      }
+    },
+    async created() {
+      await this.login()
+      await this.loadProducts()
+    },
+    methods: {
+      async login() {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'admin', password: 'admin123' }),
+        })
+        if (!res.ok) throw new Error('Login failed')
+      },
+      async loadProducts() {
+        this.loading = true
+        try {
+          const params = new URLSearchParams({
+            sort: this.sortBy,
+            page: this.currentPage,
+            per_page: 5,
+          })
+          const res = await fetch(`/api/products?${params}`)
+          if (!res.ok) throw new Error('Failed to load products')
+          const data = await res.json()
+          this.products = data.products
+          this.totalPages = data.total_pages
+        } catch (e) {
+          console.error('Failed to load products', e)
+          this.products = []
+        } finally {
+          this.loading = false
+        }
+      },
+    }
+  }).mount('#app')
+</script>
+</body>
+</html>
