@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if editing else 'Add' }} Book{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <i class="fas {{ 'fa-pen' if editing else 'fa-plus' }}"></i>
+        {{ 'Edit Book' if editing else 'Add New Book' }}
+    </div>
+    <div class="card-body">
+        {% if error %}
+        <div style="background: #fce4e4; color: #d62828; padding: 0.6rem; border-radius: 8px; margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% if editing %}/books/{{ book_isbn }}{% else %}/books/{% endif %}">
+
+            <div class="form-group">
+                <label><i class="fas fa-barcode"></i> ISBN</label>
+                <input type="text" name="isbn" required
+                       value="{{ book.isbn if editing else '' }}"
+                       {% if editing %}readonly style="background: #e2e8f0;"{% endif %}>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-heading"></i> Title</label>
+                <input type="text" name="title" required
+                       value="{{ book.title if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user-pen"></i> Author</label>
+                <input type="text" name="author" required
+                       value="{{ book.author if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar"></i> Year</label>
+                <input type="number" name="year" required
+                       value="{{ book.year if editing else '' }}">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" name="is_loaned" id="is_loaned"
+                       {% if editing and book.is_loaned %}checked{% endif %}>
+                <label for="is_loaned" style="margin:0;">Currently loaned out</label>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Loaned to (Member ID)</label>
+                <input type="text" name="loaned_to"
+                       value="{{ book.loaned_to if editing and book.is_loaned else '' }}"
+                       placeholder="e.g. M001">
+            </div>
+
+            <div class="d-flex gap-2" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ 'Update' if editing else 'Create' }}
+                </button>
+                <a href="/books/landing" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

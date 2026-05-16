@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if editing else 'Add' }} Item{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <i class="fas {{ 'fa-pen' if editing else 'fa-plus' }}"></i>
+        {{ 'Edit Item' if editing else 'Create New Item' }}
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% if editing %}/items/{{ item_id }}{% else %}/items/{% endif %}">
+
+            <div class="form-group">
+                <label><i class="fas fa-tag"></i> Name</label>
+                <input type="text" name="name" required
+                       value="{{ item.name if editing else '' }}">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-dollar-sign"></i> Price</label>
+                <input type="number" name="price" step="0.01" required
+                       value="{{ item.price if editing else '' }}">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" name="is_offer" id="offer"
+                       {% if editing and item.is_offer %}checked{% endif %}>
+                <label for="offer" style="margin:0;">This item is on offer</label>
+            </div>
+
+            {% if editing and item.tax is defined %}
+                <div style="background:#e6f4ea; padding:0.6rem; border-radius:8px; margin-bottom:1rem;">
+                    <i class="fas fa-calculator"></i> Auto-calculated tax: ${{ "%.2f"|format(item.tax) }}
+                </div>
+            {% endif %}
+
+            <div class="d-flex gap-2" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ 'Update' if editing else 'Create' }}
+                </button>
+                <a href="/items/landing" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

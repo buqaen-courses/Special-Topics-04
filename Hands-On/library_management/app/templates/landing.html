@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-chart-pie"></i> Library Dashboard</h2>
+
+<!-- STATISTICS CARDS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Total Books</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">{{ total_books }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Available</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">{{ available_books }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Loaned Out</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #e9c46a;">{{ loaned_books }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Members</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #145c32;">{{ total_members }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><i class="fas fa-list"></i> Summary</div>
+    <div class="card-body">
+        <table class="table">
+            <tbody>
+                <tr><td><strong>Total books</strong></td><td>{{ total_books }}</td></tr>
+                <tr><td><strong>Available to loan</strong></td><td>{{ available_books }}</td></tr>
+                <tr><td><strong>Currently loaned</strong></td><td>{{ loaned_books }}</td></tr>
+                <tr><td><strong>Total members</strong></td><td>{{ total_members }}</td></tr>
+                <tr><td><strong>Unique authors</strong></td><td>{{ unique_authors }}</td></tr>
+                <tr><td><strong>Oldest book</strong></td><td>"{{ oldest_title }}" ({{ oldest_year }})</td></tr>
+                <tr><td><strong>Newest book</strong></td><td>"{{ newest_title }}" ({{ newest_year }})</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="text-align: center; margin: 2rem 0;">
+    <a href="/books/landing" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem;">
+        <i class="fas fa-book-open"></i> Manage Books
+    </a>
+    <a href="/members/landing" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem;">
+        <i class="fas fa-users"></i> Manage Members
+    </a>
+</div>
+{% endblock %}

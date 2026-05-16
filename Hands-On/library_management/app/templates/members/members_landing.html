@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Members{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-users"></i> Members Management</h2>
+
+<!-- SEARCH BAR -->
+<div class="card" style="margin-bottom: 1rem;">
+    <div class="card-body">
+        <form method="GET" action="/members/landing">
+            <div class="d-flex gap-2">
+                <input type="text" name="search" placeholder="Search by name, email, or Member ID..."
+                       value="{{ search if search is defined and search is not none else '' }}"
+                       style="flex: 1;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="/members/landing" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ADD BUTTON -->
+<div style="margin: 1.5rem 0;">
+    <a href="/members/add" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Member
+    </a>
+</div>
+
+{% set params = "" %}
+{% if search is defined and search is not none and search %}
+{% set params = "search=" ~ search ~ "&" %}
+{% endif %}
+{% set base_url = "/members/landing?" ~ params %}
+
+<!-- SORT CONTROLS -->
+<div class="sort-controls" style="margin-bottom: 1rem;">
+    <span>Sort by:</span>
+    <a href="{{ base_url }}sort=default&page=1"
+       class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">
+        Default
+    </a>
+    <a href="{{ base_url }}sort=name&page=1"
+       class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">
+        Name
+    </a>
+    <a href="{{ base_url }}sort=email&page=1"
+       class="btn btn-sm {% if current_sort == 'email' %}btn-active{% endif %}">
+        Email
+    </a>
+</div>
+
+<!-- MEMBERS TABLE -->
+<div class="card">
+    <div class="card-header"><i class="fas fa-table"></i> All Members</div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Member ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if members and members|length > 0 %}
+                    {% for m in members %}
+                    <tr>
+                        <td>{{ m.member_id }}</td>
+                        <td>{{ m.name }}</td>
+                        <td>{{ m.email }}</td>
+                        <td>{{ m.phone if m.phone else '—' }}</td>
+                        <td>
+                            <a href="/members/edit/{{ m.member_id }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/members/delete/{{ m.member_id }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="text-center">No members found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAGINATION -->
+{% if total_pages > 1 %}
+<div class="pagination" style="margin-top: 1rem; text-align: center;">
+    {% if current_page > 1 %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">
+            ← Previous
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">← Previous</span>
+    {% endif %}
+
+    {% for page_num in range(1, total_pages + 1) %}
+        {% if page_num == current_page %}
+            <span class="btn btn-sm btn-active">{{ page_num }}</span>
+        {% else %}
+            <a href="{{ base_url }}sort={{ current_sort }}&page={{ page_num }}" class="btn btn-sm">
+                {{ page_num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">
+            Next →
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">Next →</span>
+    {% endif %}
+</div>
+
+<p style="text-align: center; color: #666; margin-top: 10px;">
+    Page {{ current_page }} of {{ total_pages }}
+    ({{ members|length }} members on this page)
+</p>
+{% endif %}
+
+{% endblock %}

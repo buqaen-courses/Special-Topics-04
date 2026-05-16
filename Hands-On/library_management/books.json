@@ -1,0 +1,122 @@
+[
+  {
+    "isbn": "978-0-7475-3269-9",
+    "title": "Harry Potter and the Philosopher's Stone",
+    "author": "J.K. Rowling",
+    "year": 1997,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-061-12408-4",
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "year": 1937,
+    "is_loaned": true,
+    "loaned_to": "M001"
+  },
+  {
+    "isbn": "978-0-452-28423-4",
+    "title": "1984",
+    "author": "George Orwell",
+    "year": 1949,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-14-103614-4",
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "year": 1960,
+    "is_loaned": true,
+    "loaned_to": "M003"
+  },
+  {
+    "isbn": "978-0-7432-7356-5",
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "year": 1925,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-307-27767-1",
+    "title": "The Catcher in the Rye",
+    "author": "J.D. Salinger",
+    "year": 1951,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-316-76948-0",
+    "title": "The Lord of the Rings",
+    "author": "J.R.R. Tolkien",
+    "year": 1954,
+    "is_loaned": true,
+    "loaned_to": "M002"
+  },
+  {
+    "isbn": "978-0-14-118776-1",
+    "title": "Animal Farm",
+    "author": "George Orwell",
+    "year": 1945,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-06-112008-4",
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "year": 1932,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-14-044926-6",
+    "title": "The Odyssey",
+    "author": "Homer",
+    "year": -800,
+    "is_loaned": true,
+    "loaned_to": "M001"
+  },
+  {
+    "isbn": "978-0-679-72316-5",
+    "title": "One Hundred Years of Solitude",
+    "author": "Gabriel Garcia Marquez",
+    "year": 1967,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-14-143951-8",
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "year": 1813,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-14-103614-5",
+    "title": "The Hitchhiker's Guide to the Galaxy",
+    "author": "Douglas Adams",
+    "year": 1979,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-385-47454-6",
+    "title": "The Da Vinci Code",
+    "author": "Dan Brown",
+    "year": 2003,
+    "is_loaned": false,
+    "loaned_to": null
+  },
+  {
+    "isbn": "978-0-432-14783-6",
+    "title": "Fahrenheit 451",
+    "author": "Ray Bradbury",
+    "year": 1953,
+    "is_loaned": false,
+    "loaned_to": null
+  }
+]

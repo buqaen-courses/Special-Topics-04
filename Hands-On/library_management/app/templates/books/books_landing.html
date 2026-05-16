@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Books{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-book-open"></i> Books Management</h2>
+
+<!-- SEARCH BAR -->
+<div class="card" style="margin-bottom: 1rem;">
+    <div class="card-body">
+        <form method="GET" action="/books/landing">
+            <div class="d-flex gap-2">
+                <input type="text" name="search" placeholder="Search by title, author, or ISBN..."
+                       value="{{ search if search is defined and search is not none else '' }}"
+                       style="flex: 1;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a href="/books/landing" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ADD BUTTON -->
+<div style="margin: 1.5rem 0;">
+    <a href="/books/add" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Book
+    </a>
+</div>
+
+{% set params = "" %}
+{% if search is defined and search is not none and search %}
+{% set params = "search=" ~ search ~ "&" %}
+{% endif %}
+{% set base_url = "/books/landing?" ~ params %}
+
+<!-- SORT CONTROLS -->
+<div class="sort-controls" style="margin-bottom: 1rem;">
+    <span>Sort by:</span>
+    <a href="{{ base_url }}sort=default&page=1"
+       class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">
+        Default
+    </a>
+    <a href="{{ base_url }}sort=title&page=1"
+       class="btn btn-sm {% if current_sort == 'title' %}btn-active{% endif %}">
+        Title
+    </a>
+    <a href="{{ base_url }}sort=author&page=1"
+       class="btn btn-sm {% if current_sort == 'author' %}btn-active{% endif %}">
+        Author
+    </a>
+    <a href="{{ base_url }}sort=year&page=1"
+       class="btn btn-sm {% if current_sort == 'year' %}btn-active{% endif %}">
+        Year
+    </a>
+</div>
+
+<!-- BOOKS TABLE -->
+<div class="card">
+    <div class="card-header"><i class="fas fa-table"></i> All Books</div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if books and books|length > 0 %}
+                    {% for book in books %}
+                    <tr>
+                        <td>{{ book.isbn }}</td>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.year }}</td>
+                        <td>
+                            {% if book.is_loaned %}
+                                <span class="badge badge-secondary">Loaned to {{ book.loaned_to }}</span>
+                            {% else %}
+                                <span class="badge">Available</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/books/edit/{{ book.isbn }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/books/delete/{{ book.isbn }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" class="text-center">No books found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAGINATION -->
+{% if total_pages > 1 %}
+<div class="pagination" style="margin-top: 1rem; text-align: center;">
+    {% if current_page > 1 %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">
+            ← Previous
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">← Previous</span>
+    {% endif %}
+
+    {% for page_num in range(1, total_pages + 1) %}
+        {% if page_num == current_page %}
+            <span class="btn btn-sm btn-active">{{ page_num }}</span>
+        {% else %}
+            <a href="{{ base_url }}sort={{ current_sort }}&page={{ page_num }}" class="btn btn-sm">
+                {{ page_num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages %}
+        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">
+            Next →
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">Next →</span>
+    {% endif %}
+</div>
+
+<p style="text-align: center; color: #666; margin-top: 10px;">
+    Page {{ current_page }} of {{ total_pages }}
+    ({{ books|length }} books on this page)
+</p>
+{% endif %}
+
+{% endblock %}

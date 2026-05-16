@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Items CRUD{% endblock %}</title>
+    <!-- FontAwesome CDN (free icons) -->
+    <link rel="stylesheet" href="/static/css/fa.min.css">
+    <!-- Our custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="navbar-brand">
+            <i class="fas fa-chart-pie"></i> Inventory Dashboard
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="/"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li><a href="/items/landing"><i class="fas fa-table-list"></i> Items</a></li>
+            <li><a href="/items/add"><i class="fas fa-plus-circle"></i> Add Item</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container" style="margin-top: 2rem;">
+    {% block content %}
+    <!-- Child templates will insert their content here -->
+    {% endblock %}
+</main>
+
+<footer style="text-align: center; margin: 3rem 0 1rem; color: #5c6b7a;">
+    <hr>
+    <small>© 2026 — CRUD Workshop | Pure HTML/CSS + FastAPI</small>
+</footer>
+
+</body>
+</html>

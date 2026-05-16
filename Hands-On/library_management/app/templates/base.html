@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Manager{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/fa.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="navbar-brand">
+            <i class="fas fa-book"></i> Library Manager
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="/"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li><a href="/books/landing"><i class="fas fa-book-open"></i> Books</a></li>
+            <li><a href="/members/landing"><i class="fas fa-users"></i> Members</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container" style="margin-top: 2rem;">
+    {% block content %}{% endblock %}
+</main>
+
+<footer style="text-align: center; margin: 3rem 0 1rem; color: #5c6b7a;">
+    <hr>
+    <small>&copy; 2026 — Library Management Workshop</small>
+</footer>
+
+</body>
+</html>
