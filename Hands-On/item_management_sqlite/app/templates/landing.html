@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-chart-pie"></i> Inventory Dashboard</h2>
+
+<!-- STATISTICS CARDS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Total Items</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">{{ total_items }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">On Offer</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #e9c46a;">{{ offers_count }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Avg Price</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #2b9348;">${{ "%.2f"|format(avg_price) }}</span>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-header">Total Value</div>
+        <div class="card-body">
+            <span style="font-size: 2.5rem; font-weight: 700; color: #145c32;">${{ "%.2f"|format(total_value) }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK STATS TABLE -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-list"></i> Summary
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td><strong>Total items in inventory</strong></td>
+                    <td>{{ total_items }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Items on offer</strong></td>
+                    <td>{{ offers_count }} ({{ "%.1f"|format(offers_pct) }}%)</td>
+                </tr>
+                <tr>
+                    <td><strong>Regular items</strong></td>
+                    <td>{{ regular_count }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Lowest price</strong></td>
+                    <td>${{ "%.2f"|format(min_price) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Highest price</strong></td>
+                    <td>${{ "%.2f"|format(max_price) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Average price</strong></td>
+                    <td>${{ "%.2f"|format(avg_price) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Total inventory value</strong></td>
+                    <td>${{ "%.2f"|format(total_value) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ACTION BUTTONS -->
+<div style="text-align: center; margin: 2rem 0;">
+    <a href="/items/landing" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.2rem;">
+        <i class="fas fa-arrow-right"></i> Go to Items Management
+    </a>
+</div>
+
+{% endblock %}
