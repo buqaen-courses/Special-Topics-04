@@ -1,4 +1,4 @@
-# Workshop 2: Adding Sorting, Pagination and Search to CRUD Application
+# Workshop 2: Adding Sorting and Pagination to CRUD Application
 
 ## Prerequisites
 
@@ -34,9 +34,8 @@ Before writing any code, you must:
 | **Page 2** | Click "2" → shows items 6-10 | API must accept `page=2` parameter | Server needs to know which page to return |
 | **Next Page** | Click "Next" → shows next 5 items | API must calculate `page=current+1` | Server needs to know to increment page |
 | **Previous Page** | Click "Previous" → shows previous 5 items | API must calculate `page=current-1` | Server needs to know to decrement page |
-| **Filter by Price** | Enter min/max, click Search | API must accept `min_price`, `max_price` | Server needs to filter items by price range |
 
-**Key Insight:** Sorting, pagination, and filtering are all **query parameters** added to existing endpoints, not new endpoints.
+**Key Insight:** Sorting and pagination are **query parameters** added to the existing `GET /items/` endpoint, not new endpoints.
 
 ---
 
@@ -44,19 +43,17 @@ Before writing any code, you must:
 
 | Method | Path | Query Parameters | Purpose | Response | Notes |
 |--------|------|------------------|---------|----------|-------|
-| **GET** | `/items/landing` | `sort` (optional)<br>`page` (optional) | List items with sorting and pagination | HTML page | **Modified from Workshop 1** |
-| **GET** | `/items/search` | `min_price` (optional)<br>`max_price` (optional)<br>`sort` (optional)<br>`page` (optional) | Filter items by price range with sorting/pagination | HTML page | **New endpoint** |
-| GET | `/items/add` | None | Show create form | HTML form | Unchanged |
-| POST | `/items/` | None (form data in body) | Create new item | Redirect to `/items/landing` | Unchanged |
+| **GET** | `/items/` | `sort` (optional)<br>`page` (optional) | List items with sorting and pagination | HTML page with filtered items | **Modified from Workshop 1** |
+| GET | `/items/new` | None | Show create form | HTML form | Unchanged |
+| POST | `/items/` | None (form data in body) | Create new item | Redirect to `/items/` | Unchanged |
 | GET | `/items/edit/{item_id}` | None | Show edit form | HTML form | Unchanged |
-| POST | `/items/{item_id}` | None (form data in body) | Update item | Redirect to `/items/landing` | Unchanged |
-| GET | `/items/delete/{item_id}` | None | Show delete confirmation | HTML form | Unchanged |
-| POST | `/items/delete/{item_id}` | None | Delete item | Redirect to `/items/landing` | Unchanged |
+| POST | `/items/{item_id}` | None (form data in body) | Update item | Redirect to `/items/` | Unchanged |
+| POST | `/items/delete/{item_id}` | None | Delete item | Redirect to `/items/` | Unchanged |
 
 **What Changed?**
-- Old `GET /items/` is now `GET /items/landing` with sorting + pagination
-- New `GET /items/search` endpoint added with price filter + sorting + pagination
+- Only `GET /items/` is modified
 - All other endpoints remain the same
+- New parameters: `sort` and `page`
 
 ---
 
@@ -64,16 +61,14 @@ Before writing any code, you must:
 
 | Parameter | Type | Possible Values | Default | Example URL | What It Does |
 |-----------|------|-----------------|---------|-------------|--------------|
-| `sort` | string | `name`, `price`, `default` | `default` | `/items/landing?sort=name` | Determines sort order |
-| `page` | integer | `1`, `2`, `3`, ... | `1` | `/items/landing?page=2` | Determines which page to show |
-| `min_price` | float | any positive number | None | `/items/search?min_price=10` | Minimum price filter |
-| `max_price` | float | any positive number | None | `/items/search?max_price=100` | Maximum price filter |
-| **Combined** | - | - | - | `/items/search?min_price=10&max_price=100&sort=price&page=2` | Filter + sort + paginate |
+| `sort` | string | `name`, `price`, `default` | `default` | `/items/?sort=name` | Determines sort order |
+| `page` | integer | `1`, `2`, `3`, ... | `1` | `/items/?page=2` | Determines which page to show |
+| **Combined** | - | - | - | `/items/?sort=price&page=2` | Sort by price AND show page 2 |
 
 **Important URL Rules:**
-- First parameter uses `?` → `/items/landing?sort=name`
-- Additional parameters use `&` → `/items/landing?sort=name&page=2`
-- Parameters can be in any order → `/items/landing?page=2&sort=name` (same result)
+- First parameter uses `?` → `/items/?sort=name`
+- Additional parameters use `&` → `/items/?sort=name&page=2`
+- Parameters can be in any order → `/items/?page=2&sort=name` (same result)
 
 ---
 
@@ -81,14 +76,12 @@ Before writing any code, you must:
 
 | User Clicks | HTML Link | API Called | Server Action |
 |-------------|-----------|------------|---------------|
-| "Name" button | `<a href="/items/landing?sort=name&page=1">` | `GET /items/landing?sort=name&page=1` | Sort by name, show page 1 |
-| "Price" button | `<a href="/items/landing?sort=price&page=1">` | `GET /items/landing?sort=price&page=1` | Sort by price, show page 1 |
-| "Default" button | `<a href="/items/landing?sort=default&page=1">` | `GET /items/landing?sort=default&page=1` | Original order, show page 1 |
-| "Next" button | `<a href="/items/landing?sort={{ current_sort }}&page={{ current_page + 1 }}">` | `GET /items/landing?sort=name&page=3` | Keep sort, next page |
-| "Previous" button | `<a href="/items/landing?sort={{ current_sort }}&page={{ current_page - 1 }}">` | `GET /items/landing?sort=name&page=1` | Keep sort, previous page |
-| Page number "2" | `<a href="/items/landing?sort={{ current_sort }}&page=2">` | `GET /items/landing?sort=price&page=2` | Keep sort, jump to page 2 |
-| Search button | Form POST to `/items/search` | `GET /items/search?min_price=10&max_price=100` | Filter by price range |
-| Filtered Sort | `<a href="/items/search?min_price=10&max_price=100&sort=price&page=1">` | `GET /items/search?min_price=10&max_price=100&sort=price&page=1` | Filter + sort combined |
+| "Name" button | `<a href="/items/?sort=name&page=1">` | `GET /items/?sort=name&page=1` | Sort by name, show page 1 |
+| "Price" button | `<a href="/items/?sort=price&page=1">` | `GET /items/?sort=price&page=1` | Sort by price, show page 1 |
+| "Default" button | `<a href="/items/?sort=default&page=1">` | `GET /items/?sort=default&page=1` | Original order, show page 1 |
+| "Next" button | `<a href="/items/?sort={{ current_sort }}&page={{ current_page + 1 }}">` | `GET /items/?sort=name&page=3` | Keep sort, next page |
+| "Previous" button | `<a href="/items/?sort={{ current_sort }}&page={{ current_page - 1 }}">` | `GET /items/?sort=name&page=1` | Keep sort, previous page |
+| Page number "2" | `<a href="/items/?sort={{ current_sort }}&page=2">` | `GET /items/?sort=price&page=2` | Keep sort, jump to page 2 |
 
 **Key Insight:** Links are just URLs that trigger GET requests. The `href` attribute is the API call.
 
@@ -99,7 +92,7 @@ Before writing any code, you must:
 ```
 User clicks "Sort by Price"
     ↓
-Browser sends: GET /items/landing?sort=price&page=1
+Browser sends: GET /items/?sort=price&page=1
     ↓
 FastAPI receives: sort="price", page=1
     ↓
@@ -110,7 +103,7 @@ items.py sorts items by price (ascending)
 items.py calculates: show items 0-4 (page 1, 5 per page)
     ↓
 items.py passes to template:
-    - products (sorted and sliced)
+    - items (sorted and sliced)
     - current_sort="price"
     - current_page=1
     - total_pages=3
@@ -129,7 +122,7 @@ Browser displays the page
 ```
 User clicks "Next" (currently on page 1, sorted by name)
     ↓
-Browser sends: GET /items/landing?sort=name&page=2
+Browser sends: GET /items/?sort=name&page=2
     ↓
 FastAPI receives: sort="name", page=2
     ↓
@@ -140,7 +133,7 @@ items.py sorts items by name (because sort="name")
 items.py calculates: show items 5-9 (page 2, 5 per page)
     ↓
 items.py passes to template:
-    - products (sorted and sliced for page 2)
+    - items (sorted and sliced for page 2)
     - current_sort="name"
     - current_page=2
     - total_pages=3
@@ -162,37 +155,32 @@ The `landing.html` template now needs these variables:
 | Variable | Type | Example Value | Purpose | Where It Comes From |
 |----------|------|---------------|---------|---------------------|
 | `request` | Request | (FastAPI object) | Required by Jinja2 | FastAPI automatically |
-| `products` | list | `[{id:0, name:"Laptop",...}, ...]` | Items to display (already sorted, filtered, and paginated) | Calculated in `items.py` |
+| `items` | list | `[{id:0, name:"Laptop",...}, ...]` | Items to display (already sorted and paginated) | Calculated in `items.py` |
 | `current_sort` | string | `"name"` or `"price"` or `"default"` | Which sort is active | From query parameter |
 | `current_page` | integer | `2` | Which page is active | From query parameter |
 | `total_pages` | integer | `3` | How many pages total | Calculated: `ceil(total_items / items_per_page)` |
 | `items_per_page` | integer | `5` | How many items per page | Hardcoded constant |
-| `min_price` | float or None | `10.0` | Current min price filter value | From query parameter (search only) |
-| `max_price` | float or None | `100.0` | Current max price filter value | From query parameter (search only) |
 
 **How Template Uses These:**
-- `products` → Loop to display items
+- `items` → Loop to display items
 - `current_sort` → Highlight active sort button
 - `current_page` → Highlight active page number
 - `total_pages` → Generate page number links
 - `current_sort` + `current_page` → Build pagination links that preserve sort
-- `min_price` + `max_price` → Pre-fill filter form fields and preserve in sort/pagination links
 
 ---
 
 ### Table 8: Pagination Math
 
 Given:
-- Total items: 22
+- Total items: 12
 - Items per page: 5
 
 | Page | Calculation | Items Shown | Array Slice |
 |------|-------------|-------------|-------------|
 | 1 | `start = (1-1) * 5 = 0`<br>`end = 1 * 5 = 5` | Items 1-5 | `items[0:5]` |
 | 2 | `start = (2-1) * 5 = 5`<br>`end = 2 * 5 = 10` | Items 6-10 | `items[5:10]` |
-| 3 | `start = (3-1) * 5 = 10`<br>`end = 3 * 5 = 15` | Items 11-15 | `items[10:15]` |
-| 4 | `start = (4-1) * 5 = 15`<br>`end = 4 * 5 = 20` | Items 16-20 | `items[15:20]` |
-| 5 | `start = (5-1) * 5 = 20`<br>`end = 5 * 5 = 25` | Items 21-22 | `items[20:25]` |
+| 3 | `start = (3-1) * 5 = 10`<br>`end = 3 * 5 = 15` | Items 11-12 | `items[10:15]` |
 
 **Formula:**
 ```python
@@ -214,7 +202,6 @@ total_pages = math.ceil(total_items / items_per_page)
 |-----|---------|-------|----------|
 | **Sort resets when changing page** | Click "Next" → sort changes to default | Pagination links don't include `sort` parameter | Always include `sort={{ current_sort }}` in pagination links |
 | **Page resets when changing sort** | Click "Sort by Price" → goes back to page 1 | This is actually correct behavior! | When changing sort, always reset to `page=1` |
-| **Filter resets when sorting** | After search, clicking sort loses min/max price | Sort links don't preserve `min_price`/`max_price` | Use `base_url` variable that includes filter params when active |
 | **"Previous" button on page 1** | Clicking "Previous" on page 1 → error or page 0 | No validation for minimum page | Disable/hide "Previous" when `current_page == 1` |
 | **"Next" button on last page** | Clicking "Next" on page 3 → error or empty page | No validation for maximum page | Disable/hide "Next" when `current_page == total_pages` |
 | **Empty page** | Page shows no items | Requesting page beyond total pages | Redirect to page 1 if `page > total_pages` |
@@ -232,7 +219,7 @@ Before proceeding to implementation, answer these:
 <details>
 <summary>Click to reveal answer</summary>
 
-`/items/landing?sort=price&page=3`
+`/items/?sort=price&page=3`
 
 **Explanation:** Must preserve the current sort (`price`) and increment the page (`2 + 1 = 3`).
 </details>
@@ -242,7 +229,7 @@ Before proceeding to implementation, answer these:
 <details>
 <summary>Click to reveal answer</summary>
 
-- `products` (the paginated list)
+- `items` (the paginated list)
 - `current_page` (which page is active)
 - `total_pages` (how many pages exist)
 - `current_sort` (to preserve sort in pagination links)
@@ -250,16 +237,16 @@ Before proceeding to implementation, answer these:
 **Explanation:** Template needs to know current state and total pages to build correct links.
 </details>
 
-**Question 3:** If you have 22 items and show 5 per page, how many pages are there?
+**Question 3:** If you have 23 items and show 5 per page, how many pages are there?
 
 <details>
 <summary>Click to reveal answer</summary>
 
 `5 pages`
 
-**Calculation:** `ceil(22 / 5) = ceil(4.4) = 5`
+**Calculation:** `ceil(23 / 5) = ceil(4.6) = 5`
 
-**Explanation:** Pages 1-4 have 5 items each, page 5 has 2 items.
+**Explanation:** Pages 1-4 have 5 items each, page 5 has 3 items.
 </details>
 
 **Question 4:** Why do we reset to page 1 when changing sort order?
@@ -273,8 +260,8 @@ Because the items are reordered, so "page 2" in the new sort might not contain t
 </details>
 
 **Question 5:** What's the difference between these two URLs?
-- `/items/landing?sort=name&page=2`
-- `/items/landing?page=2&sort=name`
+- `/items/?sort=name&page=2`
+- `/items/?page=2&sort=name`
 
 <details>
 <summary>Click to reveal answer</summary>
@@ -288,146 +275,75 @@ Because the items are reordered, so "page 2" in the new sort might not contain t
 
 ## Part 1: Update the Backend API
 
-### Step 1.1: Modify `app/routes/items.py` - Add Sorting, Pagination, and Search
+### Step 1.1: Modify `app/items.py` - Add Sorting and Pagination Logic
 
-**Key file locations in this project:**
-- Routes file: `app/routes/items.py` (not `app/items.py`)
-- The router is defined without a prefix — the prefix `/items` is set when included in `main.py`
-- Data file: `items.json` in the project root (not `app/data/items.json`)
-
-**The landing page endpoint is `GET /items/landing`** (not `GET /items/`).
-
-Here is the complete updated `app/routes/items.py`:
+**Replace the existing `list_items` function** with this enhanced version:
 
 ```python
-from fastapi import APIRouter, Request, Query
-from fastapi.responses import HTMLResponse
 import math
+from fastapi import APIRouter, Request, Form, Query
 from fastapi.templating import Jinja2Templates
-from fastapi import Form, status
 from fastapi.responses import RedirectResponse
-from fastapi import HTTPException
-
 import json
-import os
+from pathlib import Path
 
-router = APIRouter()
+router = APIRouter(prefix="/items", tags=["items"])
 templates = Jinja2Templates(directory="app/templates")
-DATA_FILE = "items.json"
+
+DATA_FILE = Path("app/data/items.json")
 ITEMS_PER_PAGE = 5  # Constant: how many items per page
 
 def load_items():
     """Load items from JSON file"""
-    if not os.path.exists(DATA_FILE):
-        return []
     with open(DATA_FILE, "r") as f:
         return json.load(f)
 
-@router.get("/landing", response_class=HTMLResponse)
-async def landing_page(
+def save_items(items):
+    """Save items to JSON file"""
+    with open(DATA_FILE, "w") as f:
+        json.dump(items, f, indent=2)
+
+@router.get("/")
+async def list_items(
     request: Request,
-    sort: str = Query("default", pattern="^(default|name|price)$"),
+    sort: str = Query("default", regex="^(default|name|price)$"),
     page: int = Query(1, ge=1)
 ):
     """
     Display items with sorting and pagination
-
+    
     Query Parameters:
     - sort: "default" | "name" | "price" (default: "default")
     - page: integer >= 1 (default: 1)
     """
     # Step 1: Load all items
-    items = load_items()   # each item is a dict with keys: id, name, price, is_offer
-
+    items = load_items()
+    
     # Step 2: Apply sorting
     if sort == "name":
         items = sorted(items, key=lambda x: x["name"].lower())
     elif sort == "price":
         items = sorted(items, key=lambda x: x["price"])
     # else: sort == "default", keep original order
-
+    
     # Step 3: Calculate pagination
     total_items = len(items)
     total_pages = math.ceil(total_items / ITEMS_PER_PAGE)
-
+    
     # Step 4: Validate page number
     if page > total_pages and total_pages > 0:
         # Redirect to last valid page
         return RedirectResponse(
-            url=f"/items/landing?sort={sort}&page={total_pages}",
+            url=f"/items/?sort={sort}&page={total_pages}",
             status_code=303
         )
-
+    
     # Step 5: Slice items for current page
     start = (page - 1) * ITEMS_PER_PAGE
     end = start + ITEMS_PER_PAGE
     paginated_items = items[start:end]
-
+    
     # Step 6: Pass everything to template
-    return templates.TemplateResponse(
-        request=request,
-        name="landing.html",
-        context={
-            "products": paginated_items,      # NOTE: variable is "products" in template
-            "current_sort": sort,
-            "current_page": page,
-            "total_pages": total_pages,
-            "items_per_page": ITEMS_PER_PAGE
-        }
-    )
-
-@router.get("/search")
-async def search_items(
-    request: Request,
-    min_price: float = None,
-    max_price: float = None,
-    sort: str = Query("default", pattern="^(default|name|price)$"),
-    page: int = Query(1, ge=1)
-):
-    """
-    Search/filter items by price range with sorting and pagination
-
-    Query Parameters:
-    - min_price: float (optional) - minimum price filter
-    - max_price: float (optional) - maximum price filter
-    - sort: "default" | "name" | "price" (default: "default")
-    - page: integer >= 1 (default: 1)
-    """
-    items = load_items()
-
-    # Step 1: Apply price filter
-    filtered = []
-    for item in items:
-        price = item["price"]
-        if min_price is not None and price < min_price:
-            continue
-        if max_price is not None and price > max_price:
-            continue
-        filtered.append(item)
-
-    # Step 2: Apply sorting
-    if sort == "name":
-        filtered = sorted(filtered, key=lambda x: x["name"].lower())
-    elif sort == "price":
-        filtered = sorted(filtered, key=lambda x: x["price"])
-
-    # Step 3: Calculate pagination
-    total_items = len(filtered)
-    total_pages = math.ceil(total_items / ITEMS_PER_PAGE)
-
-    # Step 4: Validate page number
-    if page > total_pages and total_pages > 0:
-        return RedirectResponse(
-            url=f"/items/search?min_price={min_price}&max_price={max_price}&sort={sort}&page={total_pages}",
-            status_code=303
-        )
-
-    # Step 5: Slice items for current page
-    start = (page - 1) * ITEMS_PER_PAGE
-    end = start + ITEMS_PER_PAGE
-    paginated_items = filtered[start:end]
-
-    # Step 6: Pass everything to template (including filter values for form)
     return templates.TemplateResponse(
         request=request,
         name="landing.html",
@@ -436,54 +352,19 @@ async def search_items(
             "current_sort": sort,
             "current_page": page,
             "total_pages": total_pages,
-            "items_per_page": ITEMS_PER_PAGE,
-            "min_price": min_price,
-            "max_price": max_price
+            "items_per_page": ITEMS_PER_PAGE
         }
     )
-
-@router.get("/add", response_class=HTMLResponse)
-async def add_item_form(request: Request):
-    # ... unchanged from Workshop 1 ...
-
-@router.post("/")
-async def create_item(
-    name: str = Form(...),
-    price: float = Form(...),
-    is_offer: bool = Form(False)
-):
-    # ... unchanged from Workshop 1 ...
-
-@router.post("/{item_id}")
-async def update_item(
-    item_id: int,
-    name: str = Form(...),
-    price: float = Form(...),
-    is_offer: bool = Form(False)
-):
-    # ... unchanged from Workshop 1 ...
-
-@router.get("/edit/{item_id}", response_class=HTMLResponse)
-async def edit_item_form(request: Request, item_id: int):
-    # ... unchanged from Workshop 1 ...
-
-@router.get("/delete/{item_id}", response_class=HTMLResponse)
-async def confirm_delete(request: Request, item_id: int):
-    # ... unchanged from Workshop 1 ...
-
-@router.post("/delete/{item_id}")
-async def delete_item(item_id: int):
-    # ... unchanged from Workshop 1 ...
 ```
 **Code Explanation:**
 
 **Line-by-line breakdown:**
 
 ```python
-sort: str = Query("default", pattern="^(default|name|price)$"),
+sort: str = Query("default", regex="^(default|name|price)$"),
 ```
 - `Query("default", ...)` → Default value is `"default"` if not provided
-- `pattern="^(default|name|price)$"` → Only allow these three values
+- `regex="^(default|name|price)$"` → Only allow these three values
 - If user sends `?sort=invalid`, FastAPI returns 422 error automatically
 
 ```python
@@ -511,7 +392,7 @@ elif sort == "price":
 total_pages = math.ceil(total_items / ITEMS_PER_PAGE)
 ```
 - `math.ceil()` → Round up (2.1 becomes 3)
-- Example: 22 items ÷ 5 per page = 4.4 → 5 pages
+- Example: 12 items ÷ 5 per page = 2.4 → 3 pages
 
 ```python
 if page > total_pages and total_pages > 0:
@@ -529,33 +410,25 @@ paginated_items = items[start:end]
 - Page 2: `start=5, end=10` → items[5:10]
 - Python slicing handles out-of-range gracefully (no error if end > length)
 
-**Search endpoint differences from landing:**
-- Accepts `min_price` and `max_price` optional float parameters
-- Filtering happens before sorting and pagination
-- Redirect URL preserves `min_price` and `max_price` on out-of-range page
-- Template context includes `min_price` and `max_price` so form inputs retain values
-
 ---
 
 ### Step 1.2: Keep All Other Routes Unchanged
 
-**Important:** The create, edit, update, and delete routes from Workshop 1 remain exactly the same. Only the `landing_page` function was modified and `search_items` was added.
+**Important:** The create, edit, update, and delete routes from Workshop 1 remain exactly the same. Only the `list_items` function changed.
 
-Your complete `app/routes/items.py` should now have:
-- ✅ `landing_page()` - **MODIFIED** (sorting + pagination)
-- ✅ `search_items()` - **NEW** (price filter + sorting + pagination)
-- ✅ `add_item_form()` - unchanged
+Your complete `app/items.py` should now have:
+- ✅ `list_items()` - **MODIFIED** (sorting + pagination)
+- ✅ `new_item_form()` - unchanged
 - ✅ `create_item()` - unchanged
 - ✅ `edit_item_form()` - unchanged
 - ✅ `update_item()` - unchanged
-- ✅ `confirm_delete()` - unchanged
 - ✅ `delete_item()` - unchanged
 
 ---
 
 ## Part 2: Update the Frontend Template
 
-### Step 2.1: Update Sorting and Pagination UI in Template
+### Step 2.1: Create Sorting and Pagination UI
 
 **Replace `app/templates/landing.html`** with this enhanced version:
 
@@ -567,7 +440,7 @@ Your complete `app/routes/items.py` should now have:
 {% block content %}
 <h2><i class="fas fa-cubes"></i> Items Management</h2>
 
-<!-- PRICE FILTER CARD -->
+<!-- PRICE FILTER CARD (preserved from original) -->
 <div class="card">
     <div class="card-header">
         <i class="fas fa-filter"></i> Filter by price
@@ -578,12 +451,12 @@ Your complete `app/routes/items.py` should now have:
                 <div style="flex: 1;">
                     <label>Min price ($)</label>
                     <input type="number" name="min_price" step="10"
-                           value="{{ min_price if min_price is defined and min_price is not none else '' }}">
+                           value="{{ min_price if min_price is defined else '' }}">
                 </div>
                 <div style="flex: 1;">
                     <label>Max price ($)</label>
                     <input type="number" name="max_price" step="10"
-                           value="{{ max_price if max_price is defined and max_price is not none else '' }}">
+                           value="{{ max_price if max_price is defined else '' }}">
                 </div>
                 <div style="align-self: flex-end;">
                     <button type="submit" class="btn btn-primary">
@@ -598,38 +471,31 @@ Your complete `app/routes/items.py` should now have:
     </div>
 </div>
 
-<!-- ADD BUTTON -->
+<!-- ADD BUTTON (preserved) -->
 <div style="margin: 1.5rem 0;">
     <a href="/items/add" class="btn btn-primary">
         <i class="fas fa-plus"></i> Add New Item
     </a>
 </div>
 
-<!-- Build base_url dynamically to preserve filter params -->
-{% set filter_params = "" %}
-{% if min_price is defined and min_price is not none or max_price is defined and max_price is not none %}
-{% set filter_params = "min_price=" ~ (min_price if min_price is not none else '') ~ "&max_price=" ~ (max_price if max_price is not none else '') ~ "&" %}
-{% endif %}
-{% set base_url = "/items/search?" ~ filter_params if filter_params else "/items/landing?" %}
-
-<!-- SORTING CONTROLS -->
+<!-- SORTING CONTROLS (new) -->
 <div class="sort-controls" style="margin-bottom: 1rem;">
     <span>Sort by:</span>
-    <a href="{{ base_url }}sort=default&page=1"
+    <a href="/items/landing?sort=default&page=1" 
        class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">
         Default
     </a>
-    <a href="{{ base_url }}sort=name&page=1"
+    <a href="/items/landing?sort=name&page=1" 
        class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">
         Name
     </a>
-    <a href="{{ base_url }}sort=price&page=1"
+    <a href="/items/landing?sort=price&page=1" 
        class="btn btn-sm {% if current_sort == 'price' %}btn-active{% endif %}">
         Price
     </a>
 </div>
 
-<!-- ITEMS TABLE -->
+<!-- ITEMS TABLE (improved version) -->
 <div class="card">
     <div class="card-header">
         <i class="fas fa-table"></i> Current items
@@ -649,6 +515,7 @@ Your complete `app/routes/items.py` should now have:
                 {% if products and products|length > 0 %}
                     {% for item in products %}
                     <tr>
+                        <!-- ID: use item.id if available, otherwise fallback to loop.index0 -->
                         <td>{{ item.id if item.id is defined else loop.index0 }}</td>
                         <td>{{ item.name }}</td>
                         <td>${{ "%.2f"|format(item.price) }}</td>
@@ -677,11 +544,11 @@ Your complete `app/routes/items.py` should now have:
     </div>
 </div>
 
-<!-- PAGINATION CONTROLS -->
+<!-- PAGINATION CONTROLS (new) -->
 {% if total_pages > 1 %}
 <div class="pagination" style="margin-top: 1rem; text-align: center;">
     {% if current_page > 1 %}
-        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">
+        <a href="/items/landing?sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">
             ← Previous
         </a>
     {% else %}
@@ -692,14 +559,14 @@ Your complete `app/routes/items.py` should now have:
         {% if page_num == current_page %}
             <span class="btn btn-sm btn-active">{{ page_num }}</span>
         {% else %}
-            <a href="{{ base_url }}sort={{ current_sort }}&page={{ page_num }}" class="btn btn-sm">
+            <a href="/items/landing?sort={{ current_sort }}&page={{ page_num }}" class="btn btn-sm">
                 {{ page_num }}
             </a>
         {% endif %}
     {% endfor %}
 
     {% if current_page < total_pages %}
-        <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">
+        <a href="/items/landing?sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">
             Next →
         </a>
     {% else %}
@@ -715,37 +582,23 @@ Your complete `app/routes/items.py` should now have:
 
 {% endblock %}
 ```
-
 **Template Explanation:**
-
-**Dynamic base_url for state preservation:**
-```html
-{% set filter_params = "" %}
-{% if min_price is defined and min_price is not none or max_price is defined and max_price is not none %}
-{% set filter_params = "min_price=" ~ (min_price if min_price is not none else '') ~ "&max_price=" ~ (max_price if max_price is not none else '') ~ "&" %}
-{% endif %}
-{% set base_url = "/items/search?" ~ filter_params if filter_params else "/items/landing?" %}
-```
-This is the critical state preservation logic:
-- If price filter is active → `base_url = "/items/search?min_price=10&max_price=100&"`
-- If no filter → `base_url = "/items/landing?"`
-- All sort and pagination links use `{{ base_url }}` so filters are always preserved
 
 **Sorting Controls:**
 ```html
-<a href="{{ base_url }}sort=name&page=1"
+<a href="/items/?sort=name&page=1" 
    class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">
     Name
 </a>
 ```
-- `href` uses `base_url` to preserve any active price filter
+- `href="/items/?sort=name&page=1"` → API call with query parameters
 - `{% if current_sort == 'name' %}btn-active{% endif %}` → Highlight active sort
 - Always reset to `page=1` when changing sort (intentional design choice)
 
 **Pagination - Previous Button:**
 ```html
 {% if current_page > 1 %}
-    <a href="{{ base_url }}sort={{ current_sort }}&page={{ current_page - 1 }}"
+    <a href="/items/?sort={{ current_sort }}&page={{ current_page - 1 }}" 
        class="btn btn-sm">
         ← Previous
     </a>
@@ -764,7 +617,7 @@ This is the critical state preservation logic:
     {% if page_num == current_page %}
         <span class="btn btn-sm btn-active">{{ page_num }}</span>
     {% else %}
-        <a href="{{ base_url }}sort={{ current_sort }}&page={{ page_num }}"
+        <a href="/items/?sort={{ current_sort }}&page={{ page_num }}" 
            class="btn btn-sm">
             {{ page_num }}
         </a>
@@ -774,33 +627,44 @@ This is the critical state preservation logic:
 - `range(1, total_pages + 1)` → Generate numbers 1, 2, 3, ..., total_pages
 - `{% if page_num == current_page %}` → Highlight current page (not clickable)
 - `{% else %}` → Other pages are clickable links
-- Always preserve `sort={{ current_sort }}`
+- Again, preserve `sort={{ current_sort }}`
+
+**Pagination - Next Button:**
+```html
+{% if current_page < total_pages %}
+    <a href="/items/?sort={{ current_sort }}&page={{ current_page + 1 }}" 
+       class="btn btn-sm">
+        Next →
+    </a>
+{% else %}
+    <span class="btn btn-sm btn-disabled">Next →</span>
+{% endif %}
+```
+- `{% if current_page < total_pages %}` → Only show clickable button if not on last page
+- `page={{ current_page + 1 }}` → Go to next page
+- `{% else %}` → Show disabled button on last page
 
 ---
 
 ### Step 2.2: Update CSS for New UI Elements
 
-**Add to `app/static/css/custom.css`** (note: the file is `custom.css`, not `style.css`, and uses a **green theme**):
-
-Add these styles to match the green theme:
+**Add to `app/static/css/style.css`:**
 
 ```css
 /* Sorting Controls */
 .sort-controls {
     margin: 20px 0;
     padding: 15px;
-    background: #e8f5e9;      /* Light green tint */
-    border: 1px solid #c8e6c9; /* Subtle green border */
-    border-radius: 8px;
+    background: #f5f5f5;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
 .sort-controls span {
     font-weight: bold;
-    color: #2b9348;            /* Primary green */
+    color: #333;
 }
 
 /* Pagination */
@@ -813,43 +677,72 @@ Add these styles to match the green theme:
     flex-wrap: wrap;
 }
 
-/* Button Variants matching green theme */
+/* Button Variants */
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 14px;
+}
+
 .btn-active {
-    background: #2b9348;       /* Same green as btn-primary */
+    background: #007bff;
     color: white;
-    font-weight: 700;
+    cursor: default;
 }
 
 .btn-active:hover {
-    background: #1b6e35;       /* Same hover as btn-primary */
+    background: #007bff;
+    transform: none;
 }
 
 .btn-disabled {
-    background: #cbd5e1;       /* Light grey */
-    color: #64748b;
+    background: #e0e0e0;
+    color: #999;
     cursor: not-allowed;
-    opacity: 0.6;
+}
+
+.btn-disabled:hover {
+    background: #e0e0e0;
+    transform: none;
+}
+
+/* Badge Styles */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    background: #6c757d;
+    color: white;
+}
+
+.badge-success {
+    background: #28a745;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sort-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagination {
+        font-size: 12px;
+    }
+    
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
 }
 ```
-
-**Theme Color Reference:**
-
-| CSS Class | Color Code | Usage |
-|-----------|------------|-------|
-| `.btn-primary` | `#2b9348` | Primary action buttons |
-| `.btn-primary:hover` | `#1b6e35` | Primary button hover |
-| `.btn-active` | `#2b9348` | Active sort/page button |
-| `.btn-active:hover` | `#1b6e35` | Active button hover |
-| `.btn-disabled` | `#cbd5e1` | Disabled pagination button |
-| `.navbar` | `#145c32` | Navigation bar background |
-| `.sort-controls` | `#e8f5e9` | Sort controls background |
-
 **CSS Explanation:**
 
-- `.sort-controls` → Horizontal bar with sort buttons (green tinted)
+- `.sort-controls` → Horizontal bar with sort buttons
 - `.pagination` → Horizontal bar with page buttons
-- `.btn-active` → Highlighted button using the primary green
+- `.btn-active` → Highlighted button (current sort/page)
 - `.btn-disabled` → Grayed-out button (can't click)
+- `@media (max-width: 768px)` → Mobile-friendly layout
 
 ---
 
@@ -859,43 +752,89 @@ Add these styles to match the green theme:
 
 To properly test pagination, you need more than 5 items.
 
-**Use or create `items.json`** in the project root with 22 unique items:
+**Replace `app/data/items.json`** with this:
 
 ```json
 [
-  { "id": 0, "name": "Laptop", "price": 999.99, "is_offer": true },
-  { "id": 1, "name": "Mouse", "price": 25.50, "is_offer": false },
-  { "id": 2, "name": "Keyboard", "price": 75.00, "is_offer": true },
-  { "id": 3, "name": "Monitor", "price": 299.99, "is_offer": false },
-  { "id": 4, "name": "Webcam", "price": 89.99, "is_offer": true },
-  { "id": 5, "name": "Headphones", "price": 150.00, "is_offer": false },
-  { "id": 6, "name": "USB Cable", "price": 12.99, "is_offer": false },
-  { "id": 7, "name": "Desk Lamp", "price": 45.00, "is_offer": true },
-  { "id": 8, "name": "Chair", "price": 199.99, "is_offer": false },
-  { "id": 9, "name": "Desk", "price": 350.00, "is_offer": true },
-  { "id": 10, "name": "Printer", "price": 180.00, "is_offer": false },
-  { "id": 11, "name": "Speaker", "price": 120.00, "is_offer": true },
-  { "id": 12, "name": "Tablet", "price": 450.00, "is_offer": false },
-  { "id": 13, "name": "Smartwatch", "price": 250.00, "is_offer": true },
-  { "id": 14, "name": "Router", "price": 85.00, "is_offer": false },
-  { "id": 15, "name": "External Drive", "price": 110.00, "is_offer": true },
-  { "id": 16, "name": "Phone Case", "price": 19.99, "is_offer": false },
-  { "id": 17, "name": "Charger", "price": 29.99, "is_offer": true },
-  { "id": 18, "name": "Backpack", "price": 65.00, "is_offer": false },
-  { "id": 19, "name": "Mouse Pad", "price": 14.99, "is_offer": true },
-  { "id": 20, "name": "Webcam Stand", "price": 39.99, "is_offer": false },
-  { "id": 21, "name": "Cable Organizer", "price": 9.99, "is_offer": true }
+  {
+    "id": 0,
+    "name": "Laptop",
+    "price": 999.99,
+    "is_offer": true
+  },
+  {
+    "id": 1,
+    "name": "Mouse",
+    "price": 25.50,
+    "is_offer": false
+  },
+  {
+    "id": 2,
+    "name": "Keyboard",
+    "price": 75.00,
+    "is_offer": true
+  },
+  {
+    "id": 3,
+    "name": "Monitor",
+    "price": 299.99,
+    "is_offer": false
+  },
+  {
+    "id": 4,
+    "name": "Webcam",
+    "price": 89.99,
+    "is_offer": true
+  },
+  {
+    "id": 5,
+    "name": "Headphones",
+    "price": 150.00,
+    "is_offer": false
+  },
+  {
+    "id": 6,
+    "name": "USB Cable",
+    "price": 12.99,
+    "is_offer": false
+  },
+  {
+    "id": 7,
+    "name": "Desk Lamp",
+    "price": 45.00,
+    "is_offer": true
+  },
+  {
+    "id": 8,
+    "name": "Chair",
+    "price": 199.99,
+    "is_offer": false
+  },
+  {
+    "id": 9,
+    "name": "Desk",
+    "price": 350.00,
+    "is_offer": true
+  },
+  {
+    "id": 10,
+    "name": "Printer",
+    "price": 180.00,
+    "is_offer": false
+  },
+  {
+    "id": 11,
+    "name": "Speaker",
+    "price": 120.00,
+    "is_offer": true
+  }
 ]
 ```
 
-With 22 items and 5 items per page:
-- Page 1 → items 1-5 (indices 0-4)
-- Page 2 → items 6-10 (indices 5-9)
-- Page 3 → items 11-15 (indices 10-14)
-- Page 4 → items 16-20 (indices 15-19)
-- Page 5 → items 21-22 (indices 20-21)
-
-Total pages: `ceil(22 / 5) = ceil(4.4) = 5`
+With 12 items and 5 items per page:
+- Page 1 → items 1-5
+- Page 2 → items 6-10
+- Page 3 → items 11-12
 
 ---
 
@@ -909,10 +848,8 @@ uvicorn app.main:app --reload
 
 Open:
 ```text
-http://127.0.0.1:8000/items/landing
+http://127.0.0.1:8000/items/
 ```
-
-The root URL `http://127.0.0.1:8000/` automatically redirects to `/items/landing`.
 
 ---
 
@@ -922,15 +859,15 @@ The root URL `http://127.0.0.1:8000/` automatically redirects to `/items/landing
 
 Open:
 ```text
-/items/landing
+/items/
 ```
 
 Expected:
 - Shows first 5 items
-- Sort is "Default"
+- Sort is “Default”
 - Page 1 highlighted
-- "Previous" disabled
-- "Next" enabled
+- “Previous” disabled
+- “Next” enabled
 
 ---
 
@@ -938,7 +875,7 @@ Expected:
 
 Open:
 ```text
-/items/landing?sort=name&page=1
+/items/?sort=name&page=1
 ```
 
 Expected order:
@@ -951,7 +888,7 @@ Keyboard
 ```
 
 Verify:
-- "Name" button highlighted
+- “Name” button highlighted
 - Pagination still works
 
 ---
@@ -960,7 +897,7 @@ Verify:
 
 Open:
 ```text
-/items/landing?sort=price&page=1
+/items/?sort=price&page=1
 ```
 
 Expected lowest prices first:
@@ -978,7 +915,7 @@ Webcam
 
 Open:
 ```text
-/items/landing?page=2
+/items/?page=2
 ```
 
 Expected:
@@ -993,7 +930,7 @@ Expected:
 
 Open:
 ```text
-/items/landing?sort=price&page=2
+/items/?sort=price&page=2
 ```
 
 Expected:
@@ -1010,7 +947,7 @@ This test is critical because it verifies state preservation.
 
 Open:
 ```text
-/items/landing?page=999
+/items/?page=999
 ```
 
 Expected:
@@ -1022,116 +959,66 @@ Expected:
 
 Open:
 ```text
-/items/landing?sort=banana
+/items/?sort=banana
 ```
 
 Expected:
-- FastAPI returns validation error (422)
+- FastAPI returns validation error
 
 ---
 
-### ✅ Test 8: Price Filter
+## Part 6: How Search Fits Into This Design
 
-Open:
+If Workshop 1 already included search functionality, you must preserve it.
+
+Example existing API:
 ```text
-/items/search?min_price=10&max_price=50
+/items/?search=laptop
 ```
 
-Expected:
-- Shows only items with price between $10 and $50
-- Filter form retains entered values
-- Sorting and pagination buttons include filter params in URLs
-
----
-
-### ✅ Test 9: Filter + Sort + Pagination
-
-Open:
+Now your API may become:
 ```text
-/items/search?min_price=10&max_price=200&sort=price&page=2
+/items/?search=laptop&sort=price&page=2
 ```
 
-Expected:
-- Shows items priced $10-$200
-- Sorted by price
-- Page 2 highlighted
-- "Price" sort button highlighted
-- Clicking "Next" preserves all params
+### Important Design Principle
+
+Every new feature must preserve existing query parameters.
+
+If user:
+1. Searches
+2. Sorts
+3. Changes page
+
+…the application must remember all three states.
 
 ---
 
-## Part 6: Search Implementation Details
+### Example State Preservation
 
-### How Search Fits Into This Design
+| Action | URL |
+|---|---|
+| Search “desk” | `/items/?search=desk` |
+| Sort by price | `/items/?search=desk&sort=price&page=1` |
+| Go to page 2 | `/items/?search=desk&sort=price&page=2` |
 
-The search feature is implemented as a **separate endpoint** (`GET /items/search`) rather than adding search parameters to the landing page endpoint. This design choice keeps each endpoint's responsibility clear.
+---
 
-### Why a Separate Endpoint?
+### Common Student Mistake
 
-| Consideration | Separate `/items/search` | Combined `/items/landing?min_price=...` |
-|--------------|--------------------------|----------------------------------------|
-| URL clarity | Self-documenting | Less obvious filtering is happening |
-| Server logic | Filtering code isolated | Must add filtering to landing route |
-| Template state | Can use `base_url` trick easily | Same approach but URL is the same |
-
-Both approaches work. The separate endpoint is chosen for clarity.
-
-### Data Flow for Search
-
-```
-User enters min=$10, max=$100, clicks Search
-    ↓
-Form submits GET to /items/search?min_price=10&max_price=100
-    ↓
-FastAPI receives: min_price=10, max_price=100
-    ↓
-items.py loads all items from JSON
-    ↓
-items.py filters: keep only items with 10 <= price <= 100
-    ↓
-items.py sorts by default (original order)
-    ↓
-items.py calculates pagination on filtered results
-    ↓
-items.py passes to template:
-    - products (filtered, sorted, paginated)
-    - min_price=10, max_price=100
-    - current_sort="default"
-    - current_page=1
-    - total_pages (based on filtered count)
-    ↓
-Template renders:
-    - Filter form retains min=10, max=100
-    - base_url = "/items/search?min_price=10&max_price=100&"
-    - All sort/pagination links use base_url → filters preserved
-    ↓
-User clicks "Sort by Price"
-    ↓
-URL: /items/search?min_price=10&max_price=100&sort=price&page=1
-```
-
-### State Preservation Matrix
-
-| Action | URL | Preserves Filter? | Preserves Sort? | Preserves Page? |
-|--------|-----|-------------------|-----------------|-----------------|
-| Search | `/items/search?min_price=10&max_price=100` | - | N/A | N/A |
-| Sort | `/items/search?min_price=10&max_price=100&sort=name&page=1` | ✅ | ✅ (reset to 1) | Resets to 1 |
-| Page | `/items/search?min_price=10&max_price=100&sort=name&page=2` | ✅ | ✅ | ✅ |
-| Reset | `/items/landing` | Cleared | Cleared | Cleared |
-
-### Common Student Mistake with Search
-
-**Wrong:**
+Wrong:
 ```html
-<a href="/items/landing?sort=name&page=1">
+<a href="/items/?page=2">
 ```
-Problem: If user is on search results page, clicking sort loses the price filter.
 
-**Correct:**
+Problem:
+- Loses current search
+- Loses current sort
+
+Correct:
 ```html
-<a href="{{ base_url }}sort=name&page=1">
+<a href="/items/?search={{ current_search }}&sort={{ current_sort }}&page=2">
 ```
-Solution: `base_url` dynamically includes filter params when active.
 
 ---
 
@@ -1143,10 +1030,9 @@ The browser does not sort the data.
 
 The server:
 1. Loads all items
-2. Filters them (if search is active)
-3. Sorts them
-4. Slices them
-5. Sends only the needed page
+2. Sorts them
+3. Slices them
+4. Sends only the needed page
 
 ---
 
@@ -1154,10 +1040,9 @@ The server:
 
 These:
 ```text
-min_price=10
-max_price=100
 sort=name
 page=2
+search=desk
 ```
 
 …are the current UI state.
@@ -1173,7 +1058,7 @@ Students often think:
 <a href="...">
 ```
 
-is "just navigation."
+is “just navigation.”
 
 It is actually:
 ```text
@@ -1188,52 +1073,46 @@ Every button click calls your backend API.
 
 When adding new features:
 - Never destroy existing state
-- Preserve all query parameters
+- Preserve query parameters
 - Keep UI consistent
-- Use `base_url` pattern to dynamically include active filters
 
 ---
 
 ## Part 8: Final URL Examples
 
 | Feature Combination | URL |
-|---------------------|-----|
-| Default list | `/items/landing` |
-| Sort by name | `/items/landing?sort=name` |
-| Page 2 | `/items/landing?page=2` |
-| Sort + page | `/items/landing?sort=price&page=3` |
-| Search by price | `/items/search?min_price=10&max_price=100` |
-| Search + sort | `/items/search?min_price=10&max_price=100&sort=name` |
-| Search + sort + page | `/items/search?min_price=10&max_price=100&sort=name&page=2` |
+|---|---|
+| Default list | `/items/` |
+| Sort by name | `/items/?sort=name` |
+| Page 2 | `/items/?page=2` |
+| Sort + page | `/items/?sort=price&page=3` |
+| Search + sort | `/items/?search=desk&sort=name` |
+| Search + sort + page | `/items/?search=desk&sort=name&page=2` |
 
 ---
 
 ## Part 9: Debugging Checklist
 
 If pagination does not work:
-- Check `total_pages` calculation
-- Check slicing logic (`start`, `end`)
-- Check query parameter names match between URL and FastAPI
-- Check page links in template
+- Check `total_pages`
+- Check slicing logic
+- Check query parameter names
+- Check page links
 
 If sorting does not work:
-- Check `sort` parameter name matches template
-- Check `sorted()` function and key
-- Check active button logic (`btn-active` class)
+- Check `sort` parameter
+- Check `sorted()` function
+- Check active button logic
 
 If state disappears:
-- Check every link uses `{{ base_url }}` (not hardcoded `/items/landing`)
-- Check template variables passed correctly from backend
-- Check `filter_params` logic in template
-
-If search does not work:
-- Check form `action="/items/search"` and `method="GET"`
-- Check `min_price` and `max_price` parameter names
-- Check None handling in Python (`min_price is not None`)
-- Check filter form retains values using `{{ min_price }}` and `{{ max_price }}`
+- Check every link preserves query parameters
+- Check template variables passed correctly
 
 If page buttons look wrong:
-- Check: `range(1, total_pages + 1)`
+- Check:
+```python
+range(1, total_pages + 1)
+```
 
 ---
 
@@ -1250,7 +1129,6 @@ After this workshop, students should understand:
 ✅ Backend/frontend interaction  
 ✅ Template-driven UI generation  
 ✅ Why links are API calls  
-✅ How multiple features combine cleanly  
-✅ Price filtering with range parameters  
-✅ Dynamic base URLs for state preservation  
-✅ Separate search vs. combined endpoint design
+✅ How multiple features combine cleanly
+
+
