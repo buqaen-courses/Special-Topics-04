@@ -42,9 +42,6 @@ async def root(request: Request, db: Session = Depends(get_db)):
     total_categories = db.query(Category).count()
     total_customers = db.query(Customer).count()
     total_orders = db.query(Order).count()
-    total_revenue = db.query(db.query(Order).statement).with_only_columns(
-        Order.total_amount
-    )
 
     from sqlalchemy import func
     revenue_result = db.query(func.sum(Order.total_amount)).scalar() or 0

@@ -1,11 +1,11 @@
 """Seed script — populates the database with sample data."""
 import hashlib
 from datetime import datetime
-from app.database import SessionLocal, engine, Base
+from app.database import SessionLocal, engine, Base, get_db
 from app.models import Admin, Customer, Category, Product, Order, OrderItem
 
 Base.metadata.create_all(bind=engine)
-db = SessionLocal()
+db = get_db()
 
 # Only seed if no admins exist
 if db.query(Admin).count() > 0:
