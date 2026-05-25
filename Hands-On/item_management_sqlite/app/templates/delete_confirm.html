@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
+    <div class="card-header" style="background: #d62828;">
+        <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+    </div>
+    <div class="card-body">
+        {% if item %}
+            <p>Are you sure you want to delete <strong>"{{ item.name }}"</strong>?</p>
+            <p>Price: ${{ "%.2f"|format(item.price) }}</p>
+            <form method="post" action="/items/delete/{{ item_id }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Yes, delete
+                </button>
+                <a href="/items/landing" class="btn btn-secondary">Cancel</a>
+            </form>
+        {% else %}
+            <p style="margin-bottom: 2rem; font-weight: 800;color: rgb(226, 43, 86);">Item not found.</p>
+            <a href="/items/landing" class="btn btn-primary">Back to list</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

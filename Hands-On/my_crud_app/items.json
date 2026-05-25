@@ -1,0 +1,146 @@
+[
+  {
+    "id": 0,
+    "name": "Laptop",
+    "price": 999.99,
+    "is_offer": true
+  },
+  {
+    "id": 1,
+    "name": "Mouse",
+    "price": 25.50,
+    "is_offer": false
+  },
+  {
+    "id": 2,
+    "name": "Keyboard",
+    "price": 75.00,
+    "is_offer": true
+  },
+  {
+    "id": 3,
+    "name": "Monitor",
+    "price": 299.99,
+    "is_offer": false
+  },
+  {
+    "id": 4,
+    "name": "Webcam",
+    "price": 89.99,
+    "is_offer": true
+  },
+  {
+    "id": 5,
+    "name": "Headphones",
+    "price": 150.00,
+    "is_offer": false
+  },
+  {
+    "id": 6,
+    "name": "USB Cable",
+    "price": 12.99,
+    "is_offer": false
+  },
+  {
+    "id": 7,
+    "name": "Desk Lamp",
+    "price": 45.00,
+    "is_offer": true
+  },
+  {
+    "id": 8,
+    "name": "Chair",
+    "price": 199.99,
+    "is_offer": false
+  },
+  {
+    "id": 9,
+    "name": "Desk",
+    "price": 350.00,
+    "is_offer": true
+  },
+  {
+    "id": 10,
+    "name": "Printer",
+    "price": 180.00,
+    "is_offer": false
+  },
+  {
+    "id": 11,
+    "name": "Speaker",
+    "price": 120.00,
+    "is_offer": true
+  },
+    {
+    "id": 30,
+    "name": "Laptop",
+    "price": 999.99,
+    "is_offer": true
+  },
+  {
+    "id": 31,
+    "name": "Mouse",
+    "price": 25.50,
+    "is_offer": false
+  },
+  {
+    "id": 12,
+    "name": "Keyboard",
+    "price": 75.00,
+    "is_offer": true
+  },
+  {
+    "id": 13,
+    "name": "Monitor",
+    "price": 299.99,
+    "is_offer": false
+  },
+  {
+    "id": 14,
+    "name": "Webcam",
+    "price": 89.99,
+    "is_offer": true
+  },
+  {
+    "id": 15,
+    "name": "Headphones",
+    "price": 150.00,
+    "is_offer": false
+  },
+  {
+    "id": 16,
+    "name": "USB Cable",
+    "price": 12.99,
+    "is_offer": false
+  },
+  {
+    "id": 17,
+    "name": "Desk Lamp",
+    "price": 45.00,
+    "is_offer": true
+  },
+  {
+    "id": 18,
+    "name": "Chair",
+    "price": 199.99,
+    "is_offer": false
+  },
+  {
+    "id": 19,
+    "name": "Desk",
+    "price": 350.00,
+    "is_offer": true
+  },
+  {
+    "id": 20,
+    "name": "Printer",
+    "price": 180.00,
+    "is_offer": false
+  },
+  {
+    "id": 21,
+    "name": "Speaker",
+    "price": 120.00,
+    "is_offer": true
+  }
+]

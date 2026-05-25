@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}Items - Landing{% endblock %} {%
-block content %}
+{% extends "base.html" %} 
+{% block title %}Items - Landing{% endblock %}
+{% block content %}
 <div class="row">
   <div class="col-12">
     <h2 class="mb-4"><i class="fa-solid fa-list-ul"></i> Items Management</h2>
@@ -26,7 +27,7 @@ block content %}
                 id="minPrice"
                 name="min_price"
                 placeholder="e.g., 10"
-                step="0.01"
+                step="50000"
                 min="0"
                 value="{{ min_price if min_price is defined else '' }}"
               />
@@ -39,7 +40,7 @@ block content %}
                 id="maxPrice"
                 name="max_price"
                 placeholder="e.g., 100"
-                step="0.01"
+                step="50000"
                 min="0"
                 value="{{ max_price if min_price is defined else '' }}"
               />

@@ -1,15 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base
-from app.routes import auth, products, categories, customers, orders
+from starlette import status
+import hashlib
+from sqlalchemy.orm import Session
+from app.database import engine, Base, get_db
+from app.models import Admin
 from app.api import auth_api, dashboard_api, products_api, categories_api, customers_api, orders_api
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Shop Manager — Full-Stack Edition")
+app = FastAPI(title="Shop Manager — Full-Stack Edition", docs_url=None, redoc_url=None)
 
 app.add_middleware(SessionMiddleware, secret_key="change-this-secret-key-in-production")
 
@@ -23,14 +28,6 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# HTML template routes
-app.include_router(auth.router, prefix="/auth")
-app.include_router(products.router, prefix="/products")
-app.include_router(categories.router, prefix="/categories")
-app.include_router(customers.router, prefix="/customers")
-app.include_router(orders.router, prefix="/orders")
-
-# JSON API routes
 app.include_router(auth_api.router)
 app.include_router(dashboard_api.router)
 app.include_router(products_api.router)
@@ -38,40 +35,59 @@ app.include_router(categories_api.router)
 app.include_router(customers_api.router)
 app.include_router(orders_api.router)
 
-templates = Jinja2Templates(directory="app/templates")
+security = HTTPBasic(auto_error=False)
 
 
-from fastapi import Request, Depends
-from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models import Product, Category, Customer, Order
-from sqlalchemy import func
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html(
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    pw_hash = hashlib.sha256(credentials.password.encode()).hexdigest()
+    admin = db.query(Admin).filter(
+        Admin.username == credentials.username,
+        Admin.password_hash == pw_hash,
+    ).first()
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="Shop Manager API")
+
+
+@app.get("/openapi.json", include_in_schema=False)
+async def custom_openapi(
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    pw_hash = hashlib.sha256(credentials.password.encode()).hexdigest()
+    admin = db.query(Admin).filter(
+        Admin.username == credentials.username,
+        Admin.password_hash == pw_hash,
+    ).first()
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return app.openapi()
 
 
 @app.get("/")
-async def root(request: Request, db: Session = Depends(get_db)):
-    admin_id = request.session.get("admin_id")
-    if not admin_id:
-        return templates.TemplateResponse(
-            request=request, name="login.html", context={"error": None}
-        )
-    total_products = db.query(Product).count()
-    total_categories = db.query(Category).count()
-    total_customers = db.query(Customer).count()
-    total_orders = db.query(Order).count()
-    revenue = db.query(func.sum(Order.total_amount)).scalar() or 0
-    low_stock = db.query(Product).filter(Product.stock < 5).count()
-    recent_orders = (
-        db.query(Order).order_by(Order.order_date.desc()).limit(5).all()
-    )
-    return templates.TemplateResponse(
-        request=request, name="landing.html", context={
-            "total_products": total_products,
-            "total_categories": total_categories,
-            "total_customers": total_customers,
-            "total_orders": total_orders,
-            "total_revenue": round(revenue, 2),
-            "low_stock": low_stock,
-            "recent_orders": recent_orders,
-        },
-    )
+async def root():
+    return RedirectResponse("/docs")

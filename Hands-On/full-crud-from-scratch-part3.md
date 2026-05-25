@@ -285,7 +285,8 @@ async def root(request: Request):
     max_price = stats["max_price"] or 0
     avg_price = stats["avg_price"] or 0
     total_value = stats["total_value"] or 0
-
+    offers_pct = offers_count / total * 100
+    
     return templates.TemplateResponse(
         request=request, name="landing.html", context={
             "total_items": total,
@@ -295,6 +296,7 @@ async def root(request: Request):
             "max_price": round(max_price, 2),
             "avg_price": round(avg_price, 2),
             "total_value": round(total_value, 2),
+            "offers_pct" : offers_pct
         },
     )
 ```

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}All Items{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-cubes"></i> Items Management</h2>
+
+<!-- PRICE FILTER CARD (preserved from original) -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-filter"></i> Filter by price
+    </div>
+    <div class="card-body">
+        <form method="GET" action="/items/search">
+            <div class="d-flex gap-2" style="flex-wrap: wrap;">
+                <div style="flex: 1;">
+                    <label>Min price ($)</label>
+                    <input type="number" name="min_price" step="10"
+                           value="{{ min_price if min_price is defined else '' }}">
+                </div>
+                <div style="flex: 1;">
+                    <label>Max price ($)</label>
+                    <input type="number" name="max_price" step="10"
+                           value="{{ max_price if max_price is defined else '' }}">
+                </div>
+                <div style="align-self: flex-end;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a href="/items/landing" class="btn btn-secondary">
+                        <i class="fas fa-undo-alt"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ADD BUTTON (preserved) -->
+<div style="margin: 1.5rem 0;">
+    <a href="/items/add" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Item
+    </a>
+</div>
+
+<!-- SORTING CONTROLS (new) -->
+<div class="sort-controls" style="margin-bottom: 1rem;">
+    <span>Sort by:</span>
+    <a href="/items/landing?sort=default&page=1" 
+       class="btn btn-sm {% if current_sort == 'default' %}btn-active{% endif %}">
+        Default
+    </a>
+    <a href="/items/landing?sort=name&page=1" 
+       class="btn btn-sm {% if current_sort == 'name' %}btn-active{% endif %}">
+        Name
+    </a>
+    <a href="/items/landing?sort=price&page=1" 
+       class="btn btn-sm {% if current_sort == 'price' %}btn-active{% endif %}">
+        Price
+    </a>
+</div>
+
+<!-- ITEMS TABLE (improved version) -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-table"></i> Current items
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Offer</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if products and products|length > 0 %}
+                    {% for item in products %}
+                    <tr>
+                        <!-- ID: use item.id if available, otherwise fallback to loop.index0 -->
+                        <td>{{ item.id if item.id is defined else loop.index0 }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>${{ "%.2f"|format(item.price) }}</td>
+                        <td>
+                            {% if item.is_offer %}
+                                <span class="badge">Yes</span>
+                            {% else %}
+                                <span class="badge badge-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/items/edit/{{ item.id if item.id is defined else loop.index0 }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="/items/delete/{{ item.id if item.id is defined else loop.index0 }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="text-center">No items found. Add one!</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAGINATION CONTROLS (new) -->
+{% if total_pages > 1 %}
+<div class="pagination" style="margin-top: 1rem; text-align: center;">
+    {% if current_page > 1 %}
+        <a href="/items/landing?sort={{ current_sort }}&page={{ current_page - 1 }}" class="btn btn-sm">
+            ← Previous
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">← Previous</span>
+    {% endif %}
+
+    {% for page_num in range(1, total_pages + 1) %}
+        {% if page_num == current_page %}
+            <span class="btn btn-sm btn-active">{{ page_num }}</span>
+        {% else %}
+            <a href="/items/landing?sort={{ current_sort }}&page={{ page_num }}" class="btn btn-sm">
+                {{ page_num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if current_page < total_pages %}
+        <a href="/items/landing?sort={{ current_sort }}&page={{ current_page + 1 }}" class="btn btn-sm">
+            Next →
+        </a>
+    {% else %}
+        <span class="btn btn-sm btn-disabled">Next →</span>
+    {% endif %}
+</div>
+
+<p style="text-align: center; color: #666; margin-top: 10px;">
+    Page {{ current_page }} of {{ total_pages }}
+    ({{ products|length }} items on this page)
+</p>
+{% endif %}
+
+{% endblock %}

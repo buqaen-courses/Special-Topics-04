@@ -4,6 +4,7 @@ from datetime import datetime
 from app.database import SessionLocal, engine, Base, get_db
 from app.models import Admin, Customer, Category, Product, Order, OrderItem
 
+
 Base.metadata.create_all(bind=engine)
 db = get_db()
 

@@ -72,6 +72,40 @@ orders     — id, customer_id → customers, order_date, total_amount, status
 order_items — id, order_id → orders, product_id → products, quantity, unit_price
 ```
 
+```
+┌────────────────────────────────────────────────────────────────┐
+│                     Entity-Relationship Diagram                │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌──────────┐                                                  │
+│  │  admins  │                                                  │
+│  │──────────│     ┌────────────┐        ┌───────────┐          │
+│  │ id (PK)  │     │ customers  │        │ products  │          │
+│  │ username │     │────────────│        │───────────│          │
+│  │ pass_ha  │     │ id (PK)    │        │ id (PK)   │          │
+│  │ created  │     │ name       │        │ name      │          │
+│  └──────────┘     │ email      │        │ price     │          │
+│                   │ phone      │        │ stock     │          │
+│  ┌──────────┐     │ created_at │ 1    N │ cat_id(FK)│────┐     │
+│  │categories│     └─────┬──────┘        └───────────┘    │     │
+│  │──────────│           │1                               │     │
+│  │ id (PK)  │           │                                │     │
+│  │ name     │           │N                               │     │
+│  │ desc     │     ┌─────┴────────┐     ┌───────────┐    │     │
+│  └──────────┘     │   orders     │     │order_items│    │     │
+│                   │──────────────│     │───────────│    │     │
+│                   │ id (PK)      │1   N│ id (PK)    │    │     │
+│                   │ cust_id(FK)──┼─────│ order_id(FK)│    │     │
+│                   │ order_date   │     │ prod_id(FK)│────┘     │
+│                   │ total_amount │     │ quantity   │          │
+│                   │ status       │     │ unit_price │          │
+│                   └──────────────┘     └───────────┘          │
+│                                                                │
+│  Cardinality:  1 ──── N    (one-to-many)                      │
+│  PK = Primary Key,  FK = Foreign Key                          │
+└────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## Step 0: Project Setup

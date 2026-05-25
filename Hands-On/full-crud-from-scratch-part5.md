@@ -34,10 +34,12 @@ In the real world, modern applications split into **two separate projects**:
 
 ### What Changed from Part 4?
 
-The **backend** now has two types of routes:
+The **backend** now has a single type of route:
 
-1. **HTML routes** (from Part 4) — still work, render templates: `/products/landing`
-2. **JSON API routes** (NEW) — return JSON data: `/api/products`
+1. **JSON API routes** — return JSON data: `/api/products`
+
+The HTML template routes from Part 4 have been removed — the backend is a pure API server.
+The root `/` now redirects to the password‑protected Swagger UI at `/docs`.
 
 The **frontend** is a brand‑new Vue.js SPA that talks only to the JSON API.
 
@@ -95,8 +97,6 @@ item_management_fullstack/
 │   │   │   ├── customer.py
 │   │   │   └── order.py
 │   │   ├── models/             # SQLAlchemy models (from Part 4)
-│   │   ├── routes/             # HTML template routes (from Part 4)
-│   │   ├── templates/          # Jinja2 templates
 │   │   ├── static/             # CSS, fonts
 │   │   ├── database.py         # SQLAlchemy setup
 │   │   └── main.py             # CORS + all routers
@@ -127,7 +127,7 @@ item_management_fullstack/
 └── full-crud-from-scratch-part5.md
 ```
 
-### 0.2 Copy the Backend
+### 0.2 Set Up the Backend
 
 Copy your entire `item_management_sqlalchemy` folder into `backend/`:
 
@@ -136,11 +136,18 @@ cp -r item_management_sqlalchemy item_management_fullstack/backend
 cd item_management_fullstack/backend
 ```
 
-Then add the new `app/api/` and `app/schemas/` directories:
+Add the new `app/api/` and `app/schemas/` directories:
 
 ```bash
 mkdir -p app/api app/schemas
 touch app/api/__init__.py app/schemas/__init__.py
+```
+
+Remove the HTML template routes that are no longer needed — the backend will serve
+only JSON API endpoints:
+
+```bash
+rm -rf app/routes app/templates
 ```
 
 ### 0.3 Create the Frontend
@@ -424,39 +431,77 @@ app.add_middleware(
 ### Backend main.py — Wiring Everything Together
 
 ```python
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from app.database import engine, Base
-from app.routes import auth, products, categories, customers, orders
-from app.api import (auth_api, dashboard_api, products_api,
-                     categories_api, customers_api, orders_api)
+import hashlib
+from sqlalchemy.orm import Session
+from app.database import engine, Base, get_db
+from app.models import Admin
+from app.api import auth_api, dashboard_api, products_api,
+                   categories_api, customers_api, orders_api
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Shop Manager — Full‑Stack Edition")
+app = FastAPI(title="Shop Manager — Full‑Stack Edition",
+              docs_url=None, redoc_url=None)
 app.add_middleware(SessionMiddleware, secret_key="change-this-secret-key")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
                    allow_credentials=True, allow_methods=["*"],
                    allow_headers=["*"])
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# HTML template routes (still work!)
-app.include_router(auth.router, prefix="/auth")
-app.include_router(products.router, prefix="/products")
-# ...
+app.include_router(auth_api.router)
+app.include_router(dashboard_api.router)
+app.include_router(products_api.router)
+app.include_router(categories_api.router)
+app.include_router(customers_api.router)
+app.include_router(orders_api.router)
 
-# JSON API routes (new!)
-app.include_router(auth_api.router)       # /api/auth/login
-app.include_router(dashboard_api.router)  # /api/dashboard
-app.include_router(products_api.router)   # /api/products
-app.include_router(categories_api.router) # /api/categories
-app.include_router(customers_api.router)  # /api/customers
-app.include_router(orders_api.router)     # /api/orders
+security = HTTPBasic(auto_error=False)
+
+def verify_admin(credentials, db):
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated",
+                            headers={"WWW-Authenticate": "Basic"})
+    pw_hash = hashlib.sha256(credentials.password.encode()).hexdigest()
+    admin = db.query(Admin).filter(
+        Admin.username == credentials.username,
+        Admin.password_hash == pw_hash,
+    ).first()
+    if not admin:
+        raise HTTPException(status_code=401, detail="Invalid credentials",
+                            headers={"WWW-Authenticate": "Basic"})
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html(
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    verify_admin(credentials, db)
+    return get_swagger_ui_html(openapi_url="/openapi.json",
+                               title="Shop Manager API")
+
+@app.get("/openapi.json", include_in_schema=False)
+async def custom_openapi(
+    credentials: HTTPBasicCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    verify_admin(credentials, db)
+    return app.openapi()
+
+@app.get("/")
+async def root():
+    return RedirectResponse("/docs")
 ```
 
-> **Git commit:** `git add -A && git commit -m "Step 2: Add RESTful API routes with Pydantic schemas and CORS middleware"`
+> **Git commit:** `git add -A && git commit -m "Step 2: Add RESTful API routes with Pydantic schemas, CORS middleware, and password-protected Swagger docs"`
 
-**Checkpoint:** Your backend now speaks pure JSON. Open `http://localhost:8000/docs` and test the endpoints directly. You'll see full OpenAPI documentation with all the new routes.
+**Checkpoint:** Your backend now speaks pure JSON. The HTML template routes have been removed — the backend is a pure API server. Visit `http://localhost:8000/` — it redirects to `/docs`, which is protected by HTTP Basic Auth (use the same `admin` / `admin123` credentials from the database).
 
 ---
 
@@ -1016,26 +1061,39 @@ cd item_management_fullstack/frontend
 npm run dev           # Starts at http://localhost:5173
 ```
 
+### 7.1a Password‑Protected Swagger UI
+
+The built‑in FastAPI docs (`/docs`) are disabled (`docs_url=None`) and replaced with
+a custom endpoint protected by HTTP Basic Auth (line 61 of `main.py`):
+
+```
+Browser → GET /docs → Basic Auth prompt → verify against Admin table in DB → Swagger UI
+```
+
+Credentials match the database: `admin` / `admin123`. On success, you see the full
+OpenAPI documentation with all 24 REST endpoints ready to test.
+
 ### 7.2 Open the Application
 
 1. Open `http://localhost:5173` in your browser
 2. Log in with `admin` / `admin123`
 3. Explore the Dashboard, Products, Categories, Customers, and Orders
 
-### 7.3 Verify Both Rendering Modes
+### 7.3 Verify the API Docs
 
-The backend still has the HTML template routes from Part 4:
-- `http://localhost:8000/` — Backend‑rendered dashboard
-- `http://localhost:8000/products/landing` — Backend‑rendered product list
+The backend is now a pure JSON API server — no HTML template routes:
 
-The frontend has the SPA:
+- `http://localhost:8000/` — Redirects to `/docs`
+- `http://localhost:8000/docs` — Password‑protected Swagger UI
+- `http://localhost:8000/redoc` — Password‑protected ReDoc
+
+Log in to Swagger with the same credentials: `admin` / `admin123`.
+
+The frontend SPA:
 - `http://localhost:5173/` — Vue‑rendered dashboard
 - `http://localhost:5173/products` — Vue‑rendered product list
 
-Both talk to the same database and the same API endpoints. The difference is **where
-the HTML is generated**: on the server (Jinja2) or in the browser (Vue).
-
-**Try it:** Open the old monolith URL and the new SPA side by side. Compare the flicker when you click a link vs. the instant SPA navigation.
+Both talk to the same database and the same API endpoints.
 
 ---
 
@@ -1063,11 +1121,12 @@ Browser → GET /products → Vue router intercepts → component mounts
 
 | Metric | Monolith (Part 4) | Full‑Stack (Part 5) |
 |--------|-------------------|---------------------|
-| Backend Python files | 15 | 24 (+9 new) |
+| Backend Python files | 15 | 18 (+3 new, -6 removed) |
 | Frontend files | Jinja2 templates (12) | Vue SFCs (11) + JS (3) |
-| Total lines of code | ~2,000 | ~3,500 |
+| Total lines of code | ~2,000 | ~3,200 |
 | API endpoints | 0 (HTML only) | 24 REST endpoints |
 | State management | Server session | Browser + session cookie |
+| Backend rendering | Jinja2 templates | None (pure JSON API) |
 
 ### Learning Progression
 

@@ -15,11 +15,5 @@
         "price": 756000.0,
         "is_offer": true,
         "tax": 75600.0
-    },
-    {
-        "name": "Shoes-24",
-        "price": 1234.0,
-        "is_offer": false,
-        "tax": 123.4
     }
 ]
